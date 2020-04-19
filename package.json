@@ -1,0 +1,27 @@
+{
+  "name": "pp_measure",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node build/app.js",
+    "compile": "tsc",
+    "serve": "ts-node-dev --respawn --transpileOnly ./src/app.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/koa": "^2.11.3",
+    "@types/koa-router": "^7.4.0",
+    "@types/koa-websocket": "^5.0.4",
+    "koa": "^2.11.0",
+    "koa-router": "^8.0.8",
+    "koa-static": "^5.0.0",
+    "koa-websocket": "^6.0.0",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.0",
+    "ts-node-dev": "^1.0.0-pre.44"
+  }
+}
