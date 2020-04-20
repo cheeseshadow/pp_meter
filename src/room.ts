@@ -40,7 +40,7 @@ class Room {
 
     public update() {
         const update: Update = {
-            users: this.users.map(user => user.name),
+            users: this.users.map(user => { return { id: user.id, name: user.name } }),
             current: this.current
         }
 
