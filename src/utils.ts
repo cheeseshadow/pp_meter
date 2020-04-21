@@ -1,3 +1,5 @@
+import { HasName, HasId, NameDto } from "./types"
+
 export const generateUUID = () => {
     let result = ''
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -5,4 +7,11 @@ export const generateUUID = () => {
         result += characters.charAt(Math.floor(Math.random() * characters.length))
     }
     return result
+}
+
+export const convertToNameDto = <T extends HasId & HasName>(thing: T): NameDto => {
+    return {
+        id: thing.id,
+        name: thing.name
+    }
 }

@@ -1,6 +1,6 @@
 import Router from "koa-router"
 import { DefaultState, DefaultContext } from "koa"
-import room from './room'
+import room from './model/room'
 import { User, Signal } from "./types"
 import { generateUUID } from "./utils"
 
