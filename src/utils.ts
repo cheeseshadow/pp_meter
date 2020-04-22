@@ -1,4 +1,5 @@
-import { HasName, HasId, NameDto } from "./types"
+import { HasId, HasName } from "./model/interfaces"
+import { NameDto } from "./model/types"
 
 export const generateUUID = () => {
     let result = ''
@@ -7,6 +8,14 @@ export const generateUUID = () => {
         result += characters.charAt(Math.floor(Math.random() * characters.length))
     }
     return result
+}
+
+export const removeFromArray = (array: any[], element: any, callback: Function | undefined) => {
+    const index = array.indexOf(element)
+    if (index !== -1) {
+        array.splice(index, 1)
+        callback && callback()
+    }
 }
 
 export const convertToNameDto = <T extends HasId & HasName>(thing: T): NameDto => {

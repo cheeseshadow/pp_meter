@@ -1,12 +1,7 @@
-import User from "./user"
-import { UserSignal, RoomUpdate, QueueEntryDto, RoomState } from "../types"
-import { convertToNameDto } from "../utils"
-import { HasName, HasId } from "./interfaces"
-
-type QueueEntry = {
-    user: User,
-    timestamp: number
-}
+import User from "../user/user"
+import { convertToNameDto } from "../../utils"
+import { HasName, HasId } from "../interfaces"
+import { QueueEntry, QueueEntryDto, RoomState, RoomUpdate, RoomSignal } from "./types"
 
 export default class Room implements HasName, HasId {
     id: string
@@ -40,7 +35,7 @@ export default class Room implements HasName, HasId {
         this.update()
     }
 
-    public addToQueue(signal: UserSignal) {
+    public addToQueue(signal: RoomSignal) {
         if (this.state !== RoomState.InProgress) {
             console.warn('Attempt to add to the queue when the room is idle')
             return
