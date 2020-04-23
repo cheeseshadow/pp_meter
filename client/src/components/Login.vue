@@ -26,7 +26,7 @@ export default class Login extends Vue {
 
     login() {
         console.log(this.username);
-        this.$router.replace({ name: "room", params: { user: this.username } });
+        this.$router.replace({ name: "lobby", params: { username: this.username } });
     }
 }
 </script>

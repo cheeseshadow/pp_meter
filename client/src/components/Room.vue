@@ -2,12 +2,11 @@
     <div class="room">
         <div class="control">
             <div>
-                <button @click="clickHandler">ultra button</button>
+                <button @click="onButtonClick()">ultra button</button>
             </div>
         </div>
 
         <div class="list">
-            <div>current: {{current}}</div>
             <div v-for="user in users" :key="user.id">{{user.name}} ({{user.id}})</div>
         </div>
     </div>
@@ -15,40 +14,51 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
+import { NameDto } from "../../../src/model/types";
+import { RoomState, RoomAction } from "../../../src/model/room/types";
+import { Signal, SignalType } from "../../../src/model/signal/types";
+import { send } from "../utils";
 
 @Component({})
 export default class Room extends Vue {
     @Prop()
-    user!: string;
+    id!: string;
 
+    @Prop()
+    user!: NameDto;
+
+    @Prop()
+    host!: NameDto[];
+
+    @Prop()
+    users!: NameDto[];
+
+    @Prop()
+    queue!: NameDto[];
+
+    @Prop()
+    state!: RoomState;
+
+    @Prop()
     ws!: WebSocket;
-    users: string[] = [];
-    current: string = "";
 
-    clickHandler() {
-        this.ws.send(
-            JSON.stringify({ username: this.user, timestamp: new Date().getTime() })
-        );
-    }
-
-    mounted() {
-        console.log("soochara!", this.user);
-
-        const url = `ws://localhost:3000/room/${this.user}`;
-        this.ws = new WebSocket(url);
-
-        this.ws.onmessage = event => {
-            const update = JSON.parse(event.data);
-            this.users = update.users;
-            this.current = update.current;
-            console.log(update);
+    onButtonClick() {
+        const signal: Signal = {
+            type: SignalType.Room,
+            data: {
+                id: this.id,
+                userId: this.user.id,
+                timestamp: Date.now(),
+                action: RoomAction.Queue
+            }
         };
+
+        send(this.ws, signal);
     }
 
-    beforeDestroy() {
-        console.log("fuck");
-        !!this.ws && this.ws.close();
-    }
+    mounted() {}
+
+    beforeDestroy() {}
 }
 </script>
 

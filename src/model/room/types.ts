@@ -18,12 +18,15 @@ export type QueueEntryDto = {
 }
 
 export type RoomUpdate = {
+    id: string,
     state: RoomState
+    host: NameDto,
     users: NameDto[],
     queue: NameDto[],
 }
 
 export type RoomSignal = {
+    id: string,
     userId: string,
     timestamp: number,
     action: RoomAction

@@ -6,9 +6,10 @@ import User from "./model/user/user"
 
 const router = new Router<DefaultState, DefaultContext>()
 
-router.all('/room/:name', async ctx => {
+router.all('/lobby/:name', async ctx => {
     const ws = ctx.websocket
     const name = ctx.params.name
+    console.log('gay', ctx.params)
     const id = generateUUID()
     const user: User = new User(id, name, ws)
 

@@ -2,10 +2,12 @@ import { HasId, HasName } from "../interfaces"
 import { Signal } from "../signal/types"
 import { Update } from "../update/types"
 import { removeFromArray } from "../../utils"
+import Room from "../room/room"
 
 export default class User implements HasId, HasName {
     id: string
     name: string
+    room: Room | undefined
     ws: any //WebSocket
 
     onCloseCallbacks: Function[] = []

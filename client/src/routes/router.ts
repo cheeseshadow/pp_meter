@@ -1,11 +1,11 @@
 import VueRouter from 'vue-router'
 import Login from '@/components/Login.vue'
-import Room from '@/components/Room.vue'
+import Lobby from '@/components/Lobby.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', component: Login },
-    { name: 'room', path: '/room/:user', component: Room, props: true }
+    { name: 'lobby', path: '/:username', component: Lobby, props: true }
 ]
 
 const router = new VueRouter({ mode: 'history', routes })

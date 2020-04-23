@@ -10,7 +10,7 @@ export const generateUUID = () => {
     return result
 }
 
-export const removeFromArray = (array: any[], element: any, callback: Function | undefined) => {
+export const removeFromArray = (array: any[], element: any, callback?: Function | undefined) => {
     const index = array.indexOf(element)
     if (index !== -1) {
         array.splice(index, 1)

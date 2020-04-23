@@ -2,6 +2,7 @@ import User from "../user/user"
 import { convertToNameDto } from "../../utils"
 import { HasName, HasId } from "../interfaces"
 import { QueueEntry, QueueEntryDto, RoomState, RoomUpdate, RoomSignal } from "./types"
+import { UpdateType } from "../update/types"
 
 export default class Room implements HasName, HasId {
     id: string
@@ -18,6 +19,9 @@ export default class Room implements HasName, HasId {
         this.users = []
         this.queue = []
         this.state = RoomState.Idle
+
+        this.users.push(host)
+        this.update()
     }
 
     public setState(state: RoomState, userId: string) {
@@ -64,9 +68,16 @@ export default class Room implements HasName, HasId {
         }
     }
 
+    public clearRoom() {
+        this.users.forEach(user => user.room = undefined)
+        this.users.length = 0
+        this.update()
+    }
+
     public addUser(user: User) {
         if (!this.users.includes(user)) {
             this.users.push(user)
+            user.room = this
             this.update()
         }
     }
@@ -74,6 +85,7 @@ export default class Room implements HasName, HasId {
     public removeUser(user: User) {
         const index = this.users.indexOf(user)
         if (index !== -1) {
+            user.room = undefined
             this.users.splice(index, 1)
             this.update()
         }
@@ -82,7 +94,9 @@ export default class Room implements HasName, HasId {
 
     public update() {
         const update: RoomUpdate = {
+            id: this.id,
             state: this.state,
+            host: convertToNameDto(this.host),
             users: this.users.map(user => convertToNameDto(user)),
             queue: this.queue.map(entry => {
                 const dto = convertToNameDto(entry.user) as QueueEntryDto
@@ -92,7 +106,7 @@ export default class Room implements HasName, HasId {
         }
 
         this.users.forEach(user => {
-            user.ws.send(JSON.stringify(update))
+            user.update({ type: UpdateType.Room, data: update })
         })
     }
 

@@ -3,7 +3,7 @@ import User from '../user/user'
 import { convertToNameDto, removeFromArray, generateUUID } from "../../utils"
 import { ContextUpdate, ContextSignal, ContextAction } from './types'
 import { Signal, SignalType } from '../signal/types'
-import { UpdateType } from '../update/types'
+import { UpdateType, Update } from '../update/types'
 
 class Context {
     private rooms: Room[]
@@ -21,18 +21,23 @@ class Context {
         return room
     }
 
-    public update() {
-        const update: ContextUpdate = {
+    public update(users?: User[]) {
+        const updateData: ContextUpdate = {
             rooms: this.rooms.map(room => convertToNameDto(room))
         }
-        this.users.forEach(user => user.update({ type: UpdateType.Context, data: update }))
+
+        const update = { type: UpdateType.Context, data: updateData };
+
+        (users || this.users)
+            .filter(user => !user.room)
+            .forEach(user => user.update(update))
     }
 
     public addUser(user: User) {
         if (!this.users.includes(user)) {
             this.users.push(user)
             this.initUser(user)
-            this.update()
+            this.update([user])
         }
     }
 
@@ -54,34 +59,44 @@ class Context {
     }
 
     private removeRoom(room: Room) {
+        const users = room.users
+        room.clearRoom()
         removeFromArray(this.rooms, room, this.update)
+        this.update(users)
     }
 
     private initUser(user: User) {
+        const update: Update = {
+            type: UpdateType.Init,
+            data: {
+                id: user.id
+            }
+        }
+        user.update(update)
+
         this.initOnClose(user)
         this.initOnMessage(user)
     }
 
     private initOnMessage(user: User) {
         const signalHandler = (signal: Signal) => {
-            if (signal.type !== SignalType.Context) {
-                throw new Error('Wrong signal type!')
-            }
+            if (signal.type === SignalType.Context) {
+                const contextSignal = signal.data as ContextSignal
+                const { action, roomId } = contextSignal
 
-            const contextSignal = signal.data as ContextSignal
-            const { action, roomId } = contextSignal
+                if (action === ContextAction.Create) {
 
-            if (action === ContextAction.Create) {
+                    const room = new Room(generateUUID(), roomId, user)
+                    this.addRoom(room)
+                    room.update()
 
-                const room = new Room(generateUUID(), roomId, user)
-                this.addRoom(room)
+                } else if (action === ContextAction.Join) {
 
-            } else if (action === ContextAction.Join) {
+                    const room = this.rooms.find(room => room.id === roomId)
+                    room && room.addUser(user)
+                    this.update()
 
-                const room = this.rooms.find(room => room.id === roomId)
-                room && room.addUser(user)
-                this.update()
-
+                }
             }
         }
 
