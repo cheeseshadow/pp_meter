@@ -1,13 +1,21 @@
 <template>
-    <div class="room">
+    <div :class="['room', inProgress ? 'room_in-progress' : '']">
         <div class="control">
-            <div>
+            <div class="block">
                 <button @click="onButtonClick()">ultra button</button>
+            </div>
+
+            <div v-if="isHost" class="block">
+                <button @click="toggleState()">Toggle state</button>
             </div>
         </div>
 
         <div class="list">
-            <div v-for="user in users" :key="user.id">{{user.name}} ({{user.id}})</div>
+            <div v-for="user in queue" :key="'queue_' + user.id">{{user.name}} ({{user.id}})</div>
+        </div>
+
+        <div class="list">
+            <div v-for="user in users" :key="'room_' + user.id">{{user.name}} ({{user.id}})</div>
         </div>
     </div>
 </template>
@@ -28,7 +36,7 @@ export default class Room extends Vue {
     user!: NameDto;
 
     @Prop()
-    host!: NameDto[];
+    host!: NameDto;
 
     @Prop()
     users!: NameDto[];
@@ -41,6 +49,23 @@ export default class Room extends Vue {
 
     @Prop()
     ws!: WebSocket;
+
+    toggleState() {
+        const signal: Signal = {
+            type: SignalType.Room,
+            data: {
+                id: this.id,
+                userId: this.user.id,
+                timestamp: Date.now(),
+                action:
+                    this.state === RoomState.Idle
+                        ? RoomAction.SetInProgress
+                        : RoomAction.SetIdle
+            }
+        };
+
+        send(this.ws, signal);
+    }
 
     onButtonClick() {
         const signal: Signal = {
@@ -56,6 +81,14 @@ export default class Room extends Vue {
         send(this.ws, signal);
     }
 
+    get isHost(): boolean {
+        return this.host.id === this.user.id;
+    }
+
+    get inProgress(): boolean {
+        return this.state === RoomState.InProgress;
+    }
+
     mounted() {}
 
     beforeDestroy() {}
@@ -65,6 +98,10 @@ export default class Room extends Vue {
 <style lang="scss" scoped>
 .room {
     display: flex;
+
+    &_in-progress {
+        background: pink;
+    }
 }
 
 .list {
@@ -75,5 +112,9 @@ export default class Room extends Vue {
 
 .control {
     flex: 1;
+}
+
+.block {
+    margin: 4px;
 }
 </style>

@@ -42,8 +42,10 @@ export default class User implements HasId, HasName {
         removeFromArray(this.onErrorCallbacks, callback)
     }
 
-    public addMessageCallback(callback: Function) {
+    public addMessageCallback(callback: Function): Function {
         this.onMessageCallbacks.push(callback)
+        return () => removeFromArray(this.onMessageCallbacks, callback)
+
     }
 
     public removeMessageCallback(callback: Function) {

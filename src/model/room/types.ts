@@ -34,5 +34,7 @@ export type RoomSignal = {
 
 export enum RoomAction {
     Queue = 'Queue',
-    Unqueue = 'Unqueue'
+    Unqueue = 'Unqueue',
+    SetIdle = 'SetIdle',
+    SetInProgress = 'SetInProgress'
 }

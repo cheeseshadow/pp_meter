@@ -61,7 +61,7 @@ class Context {
     private removeRoom(room: Room) {
         const users = room.users
         room.clearRoom()
-        removeFromArray(this.rooms, room, this.update)
+        removeFromArray(this.rooms, room, () => this.update())
         this.update(users)
     }
 
@@ -88,6 +88,7 @@ class Context {
 
                     const room = new Room(generateUUID(), roomId, user)
                     this.addRoom(room)
+                    room.addUser(user)
                     room.update()
 
                 } else if (action === ContextAction.Join) {
@@ -100,7 +101,7 @@ class Context {
             }
         }
 
-        user.addMessageCallback(signalHandler)
+        user.addMessageCallback((signal: Signal) => signalHandler(signal))
     }
 
     private initOnClose(user: User) {

@@ -1,10 +1,11 @@
 <template>
     <div>
         <div>Ultra header</div>
+
         <div class="lobby" v-if="!currentRoom">
             <div class="room-list">
                 <div
-                    class="room"
+                    class="room-item"
                     v-for="room in rooms"
                     :key="room.id"
                     @click="joinRoom(room)"
@@ -15,6 +16,7 @@
                 <button @click="createRoom()">Create room</button>
             </div>
         </div>
+
         <Room
             v-if="currentRoom"
             :id="currentRoom"
@@ -99,17 +101,18 @@ export default class Lobby extends Vue {
                 this.rooms = data.rooms;
             } else if (update.type === UpdateType.Room) {
                 const data = update.data as RoomUpdate;
+                const userInRoom = data.users.find(
+                    user => user.id === this.user.id
+                );
 
-                if (
-                    !this.currentRoom &&
-                    data.users.find(user => user.id === this.user.id)
-                ) {
+                if (!this.currentRoom && userInRoom) {
                     this.currentRoom = data.id;
-                    this.roomHost = data.host;
-                    this.roomUsers = data.users;
-                    this.roomState = data.state;
-                    this.roomQueue = data.queue;
                 }
+
+                this.roomHost = data.host;
+                this.roomUsers = data.users;
+                this.roomState = data.state;
+                this.roomQueue = data.queue;
             } else if (update.type === UpdateType.Init) {
                 const data = update.data as Init;
                 this.user = {
@@ -140,7 +143,7 @@ export default class Lobby extends Vue {
     flex-direction: column;
 }
 
-.room {
+.room-item {
     padding: 12px;
     border-top: 1px solid #e6e6e6;
     border-bottom: 1px solid #e6e6e6;

@@ -1,27 +1,25 @@
 import User from "../user/user"
-import { convertToNameDto } from "../../utils"
+import { convertToNameDto, removeFromArray } from "../../utils"
 import { HasName, HasId } from "../interfaces"
-import { QueueEntry, QueueEntryDto, RoomState, RoomUpdate, RoomSignal } from "./types"
+import { QueueEntry, QueueEntryDto, RoomState, RoomUpdate, RoomSignal, RoomAction } from "./types"
 import { UpdateType } from "../update/types"
+import { Signal, SignalType } from "../signal/types"
 
 export default class Room implements HasName, HasId {
     id: string
     name: string
     host: User
-    users: User[]
-    queue: QueueEntry[]
+    users: User[] = []
+    queue: QueueEntry[] = []
     state: RoomState
+
+    private removeCallbacks: Map<User, Function> = new Map()
 
     constructor(id: string, name: string, host: User) {
         this.id = id
         this.name = name
         this.host = host
-        this.users = []
-        this.queue = []
         this.state = RoomState.Idle
-
-        this.users.push(host)
-        this.update()
     }
 
     public setState(state: RoomState, userId: string) {
@@ -78,18 +76,20 @@ export default class Room implements HasName, HasId {
         if (!this.users.includes(user)) {
             this.users.push(user)
             user.room = this
+            this.removeCallbacks.set(user, user.addMessageCallback((signal: Signal) => this.handleUserSignal(signal)))
             this.update()
         }
     }
 
     public removeUser(user: User) {
-        const index = this.users.indexOf(user)
-        if (index !== -1) {
-            user.room = undefined
-            this.users.splice(index, 1)
-            this.update()
-        }
+        removeFromArray(this.users, user, () => {
+            removeFromArray(this.queue, user)
 
+            user.room = undefined
+            this.removeCallbacks.get(user)!()
+            this.removeCallbacks.delete(user)
+            this.update()
+        })
     }
 
     public update() {
@@ -108,6 +108,23 @@ export default class Room implements HasName, HasId {
         this.users.forEach(user => {
             user.update({ type: UpdateType.Room, data: update })
         })
+    }
+
+    private handleUserSignal(signal: Signal) {
+        if (signal.type === SignalType.Room) {
+            const data = signal.data as RoomSignal
+            if (data.action === RoomAction.Queue) {
+                console.log(this)
+                this.addToQueue(data)
+            } else if (data.action === RoomAction.Unqueue) {
+                this.removeFromQueue(data.userId)
+            } else if (data.action === RoomAction.SetIdle) {
+                this.queue.length = 0
+                this.setState(RoomState.Idle, data.userId)
+            } else if (data.action === RoomAction.SetInProgress) {
+                this.setState(RoomState.InProgress, data.userId)
+            }
+        }
     }
 
     private getEntry(userId: string): QueueEntry | undefined {
