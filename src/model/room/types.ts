@@ -23,7 +23,7 @@ export type RoomUpdate = {
     state: RoomState
     host: NameDto,
     users: UserDto[],
-    queue: NameDto[],
+    queue: QueueEntryDto[],
 }
 
 export type RoomSignal = {
