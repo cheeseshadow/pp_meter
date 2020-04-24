@@ -1,9 +1,10 @@
 import User from "../user/user"
-import { convertToNameDto, removeFromArray } from "../../utils"
-import { HasName, HasId } from "../interfaces"
-import { QueueEntry, QueueEntryDto, RoomState, RoomUpdate, RoomSignal, RoomAction } from "./types"
-import { UpdateType } from "../update/types"
-import { Signal, SignalType } from "../signal/types"
+import {convertToNameDto, removeFromArray} from "../../utils"
+import {HasId, HasName} from "../interfaces"
+import {QueueEntry, QueueEntryDto, RoomAction, RoomSignal, RoomState, RoomUpdate} from "./types"
+import {UpdateType} from "../update/types"
+import {Signal, SignalType} from "../signal/types"
+import {UserDto} from "../user/types";
 
 export default class Room implements HasName, HasId {
     id: string
@@ -43,22 +44,32 @@ export default class Room implements HasName, HasId {
             return
         }
 
+        if (this.host.id === signal.userId) {
+            console.warn('Host attempted to answer the question')
+            return
+        }
+
         const user = this.getUser(signal.userId)
         const entry = this.getEntry(signal.userId)
 
         if (!entry) {
-            this.queue.push({ user, timestamp: signal.timestamp })
+            this.queue.push({user, timestamp: signal.timestamp})
             this.update()
         }
     }
 
-    public removeFromQueue(userId: string) {
+    public removeFromQueue(userId?: string) {
         if (this.state !== RoomState.InProgress) {
             console.warn('Attempt to remove from the queue when the room is idle')
             return
         }
 
-        const entry = this.getEntry(userId)
+        if (this.queue.length === 0) {
+            console.warn('Attempt to remove from the empty queue')
+            return
+        }
+
+        const entry = userId ? this.getEntry(userId) : this.queue[0]
 
         if (entry) {
             this.queue.splice(this.queue.indexOf(entry), 1)
@@ -76,6 +87,7 @@ export default class Room implements HasName, HasId {
         if (!this.users.includes(user)) {
             this.users.push(user)
             user.room = this
+            user.score = 0
             this.removeCallbacks.set(user, user.addMessageCallback((signal: Signal) => this.handleUserSignal(signal)))
             this.update()
         }
@@ -83,9 +95,10 @@ export default class Room implements HasName, HasId {
 
     public removeUser(user: User) {
         removeFromArray(this.users, user, () => {
-            removeFromArray(this.queue, user)
+            this.removeFromQueue(user.id)
 
             user.room = undefined
+            user.score = 0
             this.removeCallbacks.get(user)!()
             this.removeCallbacks.delete(user)
             this.update()
@@ -97,7 +110,11 @@ export default class Room implements HasName, HasId {
             id: this.id,
             state: this.state,
             host: convertToNameDto(this.host),
-            users: this.users.map(user => convertToNameDto(user)),
+            users: this.users.map(user => {
+                const dto = convertToNameDto(user) as UserDto
+                dto.score = user.score
+                return dto
+            }),
             queue: this.queue.map(entry => {
                 const dto = convertToNameDto(entry.user) as QueueEntryDto
                 dto.timestamp = entry.timestamp
@@ -106,23 +123,58 @@ export default class Room implements HasName, HasId {
         }
 
         this.users.forEach(user => {
-            user.update({ type: UpdateType.Room, data: update })
+            user.update({type: UpdateType.Room, data: update})
         })
     }
 
     private handleUserSignal(signal: Signal) {
         if (signal.type === SignalType.Room) {
             const data = signal.data as RoomSignal
-            if (data.action === RoomAction.Queue) {
-                console.log(this)
-                this.addToQueue(data)
-            } else if (data.action === RoomAction.Unqueue) {
-                this.removeFromQueue(data.userId)
-            } else if (data.action === RoomAction.SetIdle) {
-                this.queue.length = 0
-                this.setState(RoomState.Idle, data.userId)
-            } else if (data.action === RoomAction.SetInProgress) {
-                this.setState(RoomState.InProgress, data.userId)
+            switch (data.action) {
+                case RoomAction.Queue:
+                    this.addToQueue(data)
+                    break
+
+                case RoomAction.Unqueue:
+                    if (this.host.id === data.userId) {
+                        // remove the top user
+                        this.removeFromQueue()
+                    } else {
+                        if (this.queue.length && this.queue[0].user.id === data.userId) {
+                            console.warn('Attempt to remove the performer')
+                        } else {
+                            this.removeFromQueue(data.userId)
+                        }
+                    }
+                    break
+
+                case RoomAction.StartRound:
+                    this.setState(RoomState.InProgress, data.userId)
+                    break
+
+                case RoomAction.EndRound:
+                    this.queue.length = 0
+                    this.setState(RoomState.Idle, data.userId)
+                    break
+
+                case RoomAction.AcceptAnswer:
+                    if (this.state !== RoomState.InProgress || this.queue.length === 0) {
+                        console.warn('attempt to accept an answer when there is none')
+                        return
+                    }
+                    this.queue[0].user.score += 1
+                    this.queue.length = 0
+                    this.setState(RoomState.Idle, data.userId)
+                    break
+
+                case RoomAction.RejectAnswer:
+                    if (this.state !== RoomState.InProgress || this.queue.length === 0) {
+                        console.warn('attempt to accept an answer when there is none')
+                        return
+                    }
+                    this.queue[0].user.score -= 1
+                    this.removeFromQueue()
+                    break
             }
         }
     }

@@ -1,24 +1,17 @@
 import Room from '../room/room'
 import User from '../user/user'
-import { convertToNameDto, removeFromArray, generateUUID } from "../../utils"
-import { ContextUpdate, ContextSignal, ContextAction } from './types'
-import { Signal, SignalType } from '../signal/types'
-import { UpdateType, Update } from '../update/types'
+import {convertToNameDto, generateUUID, removeFromArray} from "../../utils"
+import {ContextAction, ContextSignal, ContextUpdate} from './types'
+import {Signal, SignalType} from '../signal/types'
+import {Update, UpdateType} from '../update/types'
 
 class Context {
-    private rooms: Room[]
-    private users: User[]
+    private readonly rooms: Room[]
+    private readonly users: User[]
 
     constructor() {
         this.rooms = []
         this.users = []
-    }
-
-    public createRoom(id: string, name: string, host: User): Room {
-        const room = new Room(id, name, host)
-        this.rooms.push(room)
-
-        return room
     }
 
     public update(users?: User[]) {
@@ -26,7 +19,7 @@ class Context {
             rooms: this.rooms.map(room => convertToNameDto(room))
         }
 
-        const update = { type: UpdateType.Context, data: updateData };
+        const update = {type: UpdateType.Context, data: updateData};
 
         (users || this.users)
             .filter(user => !user.room)
@@ -82,26 +75,26 @@ class Context {
         const signalHandler = (signal: Signal) => {
             if (signal.type === SignalType.Context) {
                 const contextSignal = signal.data as ContextSignal
-                const { action, roomId } = contextSignal
+                const {action, roomId} = contextSignal
 
                 if (action === ContextAction.Create) {
-
-                    const room = new Room(generateUUID(), roomId, user)
-                    this.addRoom(room)
-                    room.addUser(user)
-                    room.update()
-
+                    this.createRoom(contextSignal.roomId, user)
                 } else if (action === ContextAction.Join) {
-
                     const room = this.rooms.find(room => room.id === roomId)
                     room && room.addUser(user)
                     this.update()
-
                 }
             }
         }
 
         user.addMessageCallback((signal: Signal) => signalHandler(signal))
+    }
+
+    private createRoom(name: string, host: User) {
+        const room = new Room(generateUUID(), name, host)
+        this.addRoom(room)
+        room.addUser(host)
+        room.update()
     }
 
     private initOnClose(user: User) {

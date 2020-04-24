@@ -5,156 +5,165 @@
         <div class="lobby" v-if="!currentRoom">
             <div class="room-list">
                 <div
-                    class="room-item"
-                    v-for="room in rooms"
-                    :key="room.id"
-                    @click="joinRoom(room)"
-                >{{room.name}} ({{room.id}})</div>
+                        class="room-item"
+                        v-for="room in rooms"
+                        :key="room.id"
+                        @click="joinRoom(room)"
+                >{{room.name}} ({{room.id}})
+                </div>
             </div>
             <div class="control">
-                <input type="text" v-model="roomName" />
+                <input type="text" v-model="roomName"/>
                 <button @click="createRoom()">Create room</button>
             </div>
         </div>
 
         <Room
-            v-if="currentRoom"
-            :id="currentRoom"
-            :user="user"
-            :host="roomHost"
-            :users="roomUsers"
-            :state="roomState"
-            :queue="roomQueue"
-            :ws="ws"
+                v-if="currentRoom"
+                :id="currentRoom"
+                :user="user"
+                :host="roomHost"
+                :users="roomUsers"
+                :state="roomState"
+                :queue="roomQueue"
+                :ws="ws"
         />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { Update, UpdateType, Init } from "../../../src/model/update/types";
-import { ContextUpdate, ContextAction } from "../../../src/model/context/types";
-import { NameDto } from "../../../src/model/types";
-import { Signal, SignalType } from "../../../src/model/signal/types";
-import { send } from "../utils";
-import Room from "./Room.vue";
-import { RoomUpdate, RoomState } from "../../../src/model/room/types";
+    import {Component, Prop, Vue} from "vue-property-decorator";
+    import {Init, Update, UpdateType} from "../../../src/model/update/types";
+    import {ContextAction, ContextUpdate} from "../../../src/model/context/types";
+    import {NameDto} from "../../../src/model/types";
+    import {Signal, SignalType} from "../../../src/model/signal/types";
+    import {send} from "@/utils";
+    import Room from "./Room.vue";
+    import {QueueEntryDto, RoomState, RoomUpdate} from "../../../src/model/room/types";
+    import {UserDto} from "../../../src/model/user/types";
 
-@Component({ components: { Room } })
-export default class Lobby extends Vue {
-    @Prop()
-    username!: string;
+    @Component({components: {Room}})
+    export default class Lobby extends Vue {
+        @Prop()
+        username!: string;
 
-    ws!: WebSocket;
+        ws!: WebSocket;
 
-    user!: NameDto;
+        user!: NameDto;
 
-    roomName: string = "";
+        roomName: string = "";
 
-    rooms: NameDto[] = [];
-    currentRoom: string = "";
+        rooms: NameDto[] = [];
+        currentRoom: string = "";
 
-    roomHost!: NameDto;
-    roomUsers: NameDto[] = [];
-    roomQueue: any[] = [];
-    roomState: RoomState = RoomState.Idle;
+        roomHost!: NameDto;
+        roomUsers: UserDto[] = [];
+        roomQueue: QueueEntryDto[] = [];
+        roomState: RoomState = RoomState.Idle;
 
-    createRoom() {
-        if (!this.roomName) {
-            return;
+        createRoom() {
+            if (!this.roomName) {
+                return;
+            }
+
+            const signal: Signal = {
+                type: SignalType.Context,
+                data: {
+                    roomId: this.roomName,
+                    action: ContextAction.Create
+                }
+            };
+
+            send(this.ws, signal);
         }
 
-        const signal: Signal = {
-            type: SignalType.Context,
-            data: {
-                roomId: this.roomName,
-                action: ContextAction.Create
-            }
-        };
+        joinRoom(room: NameDto) {
+            const signal: Signal = {
+                type: SignalType.Context,
+                data: {
+                    roomId: room.id,
+                    action: ContextAction.Join
+                }
+            };
 
-        send(this.ws, signal);
-    }
+            send(this.ws, signal);
+        }
 
-    joinRoom(room: NameDto) {
-        const signal: Signal = {
-            type: SignalType.Context,
-            data: {
-                roomId: room.id,
-                action: ContextAction.Join
-            }
-        };
+        mounted() {
+            console.log("soochara!", this.user);
 
-        send(this.ws, signal);
-    }
+            const url = `ws://localhost:3000/lobby/${this.username}`;
+            this.ws = new WebSocket(url);
 
-    mounted() {
-        console.log("soochara!", this.user);
+            this.ws.onmessage = event => {
+                const update: Update = JSON.parse(event.data) as Update;
 
-        const url = `ws://localhost:3000/lobby/${this.username}`;
-        this.ws = new WebSocket(url);
+                if (update.type === UpdateType.Context) {
+                    const data = update.data as ContextUpdate;
+                    this.rooms = data.rooms;
 
-        this.ws.onmessage = event => {
-            const update: Update = JSON.parse(event.data) as Update;
+                    if (this.currentRoom && !this.rooms.find(room => room.id === this.currentRoom)) {
+                        this.currentRoom = ''
+                    }
 
-            if (update.type === UpdateType.Context) {
-                const data = update.data as ContextUpdate;
-                this.rooms = data.rooms;
-            } else if (update.type === UpdateType.Room) {
-                const data = update.data as RoomUpdate;
-                const userInRoom = data.users.find(
-                    user => user.id === this.user.id
-                );
+                } else if (update.type === UpdateType.Room) {
+                    const data = update.data as RoomUpdate;
 
-                if (!this.currentRoom && userInRoom) {
-                    this.currentRoom = data.id;
+                    if (this.currentRoom && !data.users.find(user => user.id === this.user.id)) {
+                        this.currentRoom = ''
+                    } else if (!this.currentRoom && data.users.find(user => user.id === this.user.id)) {
+                        this.currentRoom = data.id;
+                    }
+
+                    if (this.currentRoom) {
+                        this.roomHost = data.host;
+                        this.roomUsers = data.users;
+                        this.roomState = data.state;
+                        this.roomQueue = data.queue;
+                    }
+
+                } else if (update.type === UpdateType.Init) {
+                    const data = update.data as Init;
+                    this.user = {
+                        id: data.id,
+                        name: this.username
+                    };
                 }
 
-                this.roomHost = data.host;
-                this.roomUsers = data.users;
-                this.roomState = data.state;
-                this.roomQueue = data.queue;
-            } else if (update.type === UpdateType.Init) {
-                const data = update.data as Init;
-                this.user = {
-                    id: data.id,
-                    name: this.username
-                };
-            }
+                // console.log(update);
+            };
+        }
 
-            console.log(update);
-        };
+        beforeDestroy() {
+            console.log("fuck");
+            !!this.ws && this.ws.close();
+        }
     }
-
-    beforeDestroy() {
-        console.log("fuck");
-        !!this.ws && this.ws.close();
-    }
-}
 </script>
 
 <style lang="scss" scoped>
-.lobby {
-    display: flex;
-}
-
-.room-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.room-item {
-    padding: 12px;
-    border-top: 1px solid #e6e6e6;
-    border-bottom: 1px solid #e6e6e6;
-
-    &:hover {
-        background: #e6e6e6;
-        cursor: pointer;
+    .lobby {
+        display: flex;
     }
-}
 
-.control {
-    flex: 1;
-}
+    .room-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .room-item {
+        padding: 12px;
+        border-top: 1px solid #e6e6e6;
+        border-bottom: 1px solid #e6e6e6;
+
+        &:hover {
+            background: #e6e6e6;
+            cursor: pointer;
+        }
+    }
+
+    .control {
+        flex: 1;
+    }
 </style>

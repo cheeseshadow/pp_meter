@@ -1,12 +1,13 @@
-import { HasId, HasName } from "../interfaces"
-import { Signal } from "../signal/types"
-import { Update } from "../update/types"
-import { removeFromArray } from "../../utils"
+import {HasId, HasName} from "../interfaces"
+import {Signal} from "../signal/types"
+import {Update} from "../update/types"
+import {removeFromArray} from "../../utils"
 import Room from "../room/room"
 
 export default class User implements HasId, HasName {
     id: string
     name: string
+    score: number
     room: Room | undefined
     ws: any //WebSocket
 
@@ -17,6 +18,7 @@ export default class User implements HasId, HasName {
     constructor(id: string, name: string, ws: WebSocket) {
         this.id = id
         this.name = name
+        this.score = 0
         this.ws = ws
 
         this.initWS()
@@ -46,10 +48,6 @@ export default class User implements HasId, HasName {
         this.onMessageCallbacks.push(callback)
         return () => removeFromArray(this.onMessageCallbacks, callback)
 
-    }
-
-    public removeMessageCallback(callback: Function) {
-        removeFromArray(this.onMessageCallbacks, callback)
     }
 
     private initWS() {

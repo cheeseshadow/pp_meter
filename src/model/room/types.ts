@@ -1,5 +1,6 @@
-import { NameDto } from "../types"
+import {NameDto} from "../types"
 import User from "../user/user"
+import {UserDto} from "../user/types";
 
 export enum RoomState {
     Idle = 'Idle',
@@ -21,7 +22,7 @@ export type RoomUpdate = {
     id: string,
     state: RoomState
     host: NameDto,
-    users: NameDto[],
+    users: UserDto[],
     queue: NameDto[],
 }
 
@@ -35,6 +36,8 @@ export type RoomSignal = {
 export enum RoomAction {
     Queue = 'Queue',
     Unqueue = 'Unqueue',
-    SetIdle = 'SetIdle',
-    SetInProgress = 'SetInProgress'
+    StartRound = 'StartRound',
+    EndRound = 'EndRound',
+    AcceptAnswer = 'AcceptAnswer',
+    RejectAnswer = 'RejectAnswer'
 }
