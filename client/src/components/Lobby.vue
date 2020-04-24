@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="block block_column block_high">
         <div>Ultra header</div>
 
         <div class="lobby" v-if="!currentRoom">
@@ -13,7 +13,6 @@
                 </div>
             </div>
             <div class="control">
-                <input type="text" v-model="roomName"/>
                 <button @click="createRoom()">Create room</button>
             </div>
         </div>
@@ -41,6 +40,7 @@
     import Room from "./Room.vue";
     import {QueueEntryDto, RoomState, RoomUpdate} from "../../../src/model/room/types";
     import {UserDto} from "../../../src/model/user/types";
+    import NewRoomDialog from "@/components/NewRoomDialog.vue";
 
     @Component({components: {Room}})
     export default class Lobby extends Vue {
@@ -62,19 +62,23 @@
         roomState: RoomState = RoomState.Idle;
 
         createRoom() {
-            if (!this.roomName) {
-                return;
-            }
+            this.$modal.show(NewRoomDialog, {}, {}, {
+                'accept': (roomName: any) => {
+                    if (!roomName) {
+                        return;
+                    }
 
-            const signal: Signal = {
-                type: SignalType.Context,
-                data: {
-                    roomId: this.roomName,
-                    action: ContextAction.Create
+                    const signal: Signal = {
+                        type: SignalType.Context,
+                        data: {
+                            roomId: roomName,
+                            action: ContextAction.Create
+                        }
+                    };
+
+                    send(this.ws, signal);
                 }
-            };
-
-            send(this.ws, signal);
+            })
         }
 
         joinRoom(room: NameDto) {

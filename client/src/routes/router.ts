@@ -5,7 +5,7 @@ import Lobby from '@/components/Lobby.vue'
 const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', component: Login },
-    { name: 'lobby', path: '/:username', component: Lobby, props: true }
+    {name: 'lobby', path: '/lobby/:username', component: Lobby, props: true}
 ]
 
 const router = new VueRouter({ mode: 'history', routes })

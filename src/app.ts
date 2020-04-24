@@ -10,13 +10,21 @@ const router = new Router()
 // router init
 router.all('/', async (ctx, next) => {
     ctx.redirect('/index.html')
-    // ctx.body = { ping: 'pong' }
-
     await next()
 })
 
 // middleware
 app.use(serve('./client/dist'))
+
+// do not allow other routes
+app.use(async (ctx, next) => {
+    if (!['/login', '/'].includes(ctx.path)) {
+        ctx.status = 401
+        ctx.redirect('/')
+    } else {
+        await next()
+    }
+})
 
 // router
 // @ts-ignore
