@@ -98,7 +98,6 @@
             line-height: 32px;
             padding: 8px 24px;
 
-
             &_empty {
                 color: #aaa;
             }

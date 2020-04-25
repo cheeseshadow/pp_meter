@@ -53,18 +53,15 @@
 <style lang="scss">
     .room-queue {
         display: flex;
-        /*flex-direction: column;*/
         flex-wrap: wrap;
-        justify-content: center;
-        /*align-items: center;*/
+        justify-content: flex-start;
+        padding-top: 8px;
 
         &__item {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #4285F4;
-            padding: 12px 12px;
-            margin: 8px;
+            padding: 12px 24px;
             /*min-width: 120px;*/
             /*max-width: 240px;*/
             /*margin: 0 32px;*/
