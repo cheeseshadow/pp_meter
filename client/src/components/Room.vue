@@ -15,9 +15,13 @@
         </div>
 
         <div class="room__control">
-            <div v-if="!isHost" class="block">
-                <button @click="sendSignal(roomAction.Queue)" :disabled="!inProgress">ultra button</button>
-                <button v-if="isQueued && !isAnswering" @click="sendSignal(roomAction.Unqueue)">withdraw!</button>
+            <div v-if="!isHost" class="block block_wide">
+                <button class="btn room__btn" v-if="!isQueued" @click="sendSignal(roomAction.Queue)"
+                        :disabled="!inProgress">Answer
+                </button>
+                <button class="btn" v-if="isQueued && !isAnswering" @click="sendSignal(roomAction.Unqueue)">
+                    Withdraw
+                </button>
             </div>
 
             <div v-if="isHost" class="block block_wide">
@@ -28,13 +32,12 @@
                         @click="sendSignal(roomAction.EndRound)">End round
                 </button>
                 <button class="btn btn_green room__btn" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.AcceptAnswer)">
-                    Accept
+                        @click="sendSignal(roomAction.AcceptAnswer)">Accept
                 </button>
                 <button class="btn btn_yellow room__btn" v-if="thereIsAnAnswer"
                         @click="sendSignal(roomAction.AcceptHalf)">Half
                 </button>
-                <button class="btn btn_red room__btn" v-if="thereIsAnAnswer"
+                <button class="btn btn_red" v-if="thereIsAnAnswer"
                         @click="sendSignal(roomAction.RejectAnswer)">Reject
                 </button>
                 <button class="btn btn_white room__btn_right" v-if="thereIsAnAnswer"
@@ -117,11 +120,11 @@
         }
 
         get isQueued(): boolean {
-            return this.queue.length > 0 && this.queue[0].id === this.user.id
+            return !!this.queue.find(entry => entry.id === this.user.id)
         }
 
         get isAnswering(): boolean {
-            return this.queue.length > 0 && this.queue[0].id === this.user.id
+            return this.activePlayerId === this.user.id
         }
 
         get inProgress(): boolean {
@@ -150,9 +153,7 @@
         position: relative;
 
         &__btn {
-            &:not(:last-child) {
-                margin-right: 12px;
-            }
+            margin-right: 12px;
 
             &_left {
                 margin-left: 20px;
