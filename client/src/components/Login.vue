@@ -52,6 +52,7 @@
         }
 
         &__zaloopa {
+            line-height: normal;
             position: absolute;
             bottom: calc(100% + 32px);
             font-size: 100px;

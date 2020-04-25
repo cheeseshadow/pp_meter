@@ -37,15 +37,15 @@
             font-size: 32px;
             font-weight: 700;
             font-family: 'Montserrat', sans-serif;
-            padding-bottom: 40px;
+            line-height: 42px;
+            padding-bottom: 32px;
         }
 
         &__body {
-            padding-bottom: 20px;
+            padding-bottom: 32px;
         }
 
         &__footer {
-            padding: 20px;
         }
 
     }

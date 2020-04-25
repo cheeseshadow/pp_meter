@@ -62,7 +62,11 @@
         roomState: RoomState = RoomState.Idle;
 
         createRoom() {
-            this.$modal.show(NewRoomDialog, {}, {}, {
+            this.$modal.show(NewRoomDialog, {}, {
+                height: 330,
+                width: 520,
+                adaptive: true
+            }, {
                 'accept': (roomName: any) => {
                     if (!roomName) {
                         return;
@@ -94,8 +98,6 @@
         }
 
         mounted() {
-            console.log("soochara!", this.user);
-
             const base = process.env.VUE_APP_URL;
             const url = `ws://${base}/lobby/${this.username}`;
             this.ws = new WebSocket(url);
@@ -134,8 +136,6 @@
                         name: this.username
                     };
                 }
-
-                // console.log(update);
             };
         }
 
