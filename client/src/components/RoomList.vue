@@ -1,20 +1,19 @@
 <template>
     <div class="block block_column block_high">
-        <div>Ultra header</div>
+        <div class="header">Room list</div>
 
-        <div class="lobby" v-if="!currentRoom">
-            <div class="room-list">
-                <div
-                        class="room-item"
-                        v-for="room in rooms"
-                        :key="room.id"
-                        @click="joinRoom(room)"
-                >{{room.name}} ({{room.id}})
-                </div>
+        <div class="room-list">
+            <div class="room-list__item room-list__item_empty" v-if="rooms.length === 0">List is empty</div>
+            <div class="room-list__item"
+                 v-for="room in rooms"
+                 :key="room.id"
+                 @click="joinRoom(room)">
+                {{room.name}}
             </div>
-            <div class="control">
-                <button @click="createRoom()">Create room</button>
-            </div>
+        </div>
+
+        <div class="control">
+            <button class="btn" @click="createRoom()">Create room</button>
         </div>
     </div>
 </template>
@@ -33,7 +32,7 @@
         ws!: WebSocket;
 
         @Prop()
-        user: NameDto | null = null;
+        user!: NameDto;
 
         @Prop()
         rooms!: NameDto[];
@@ -88,28 +87,28 @@
 </script>
 
 <style lang="scss" scoped>
-    .lobby {
-        display: flex;
-    }
-
     .room-list {
-        flex: 1;
         display: flex;
         flex-direction: column;
-    }
+        height: 40vh;
+        width: 400px;
+        margin-bottom: 32px;
+        box-sizing: border-box;
 
-    .room-item {
-        padding: 12px;
-        border-top: 1px solid #e6e6e6;
-        border-bottom: 1px solid #e6e6e6;
-
-        &:hover {
-            background: #e6e6e6;
+        &__item {
+            display: flex;
+            justify-content: center;
+            line-height: 32px;
+            padding: 8px 24px;
             cursor: pointer;
-        }
-    }
 
-    .control {
-        flex: 1;
+            &_empty {
+                color: #aaa;
+            }
+
+            &:hover {
+                background: #f2f0fa;
+            }
+        }
     }
 </style>
