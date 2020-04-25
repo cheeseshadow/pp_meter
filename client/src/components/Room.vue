@@ -1,5 +1,5 @@
 <template>
-    <div :class="room">
+    <div class="room">
         <div v-if="inProgress" class="room__in-progress"></div>
 
         <div class="room__header header">
