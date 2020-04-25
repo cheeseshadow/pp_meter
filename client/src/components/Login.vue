@@ -53,7 +53,7 @@
 
         &__letter {
             &_z {
-                color: cornflowerblue;
+                color: #ffffff;
             }
 
             &_a1 {
