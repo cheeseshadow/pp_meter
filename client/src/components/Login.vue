@@ -20,7 +20,7 @@
                        placeholder="Username"
                        required/>
 
-                <button class="main__btn" type="submit">Continue</button>
+                <button class="btn" type="submit">Continue</button>
             </div>
         </div>
     </form>
@@ -118,17 +118,6 @@
             &::placeholder {
                 color: #aaa;
             }
-        }
-
-        &__btn {
-            box-sizing: border-box;
-            height: 48px;
-            padding: 0 32px;
-            border: none;
-            border-radius: 8px;
-            background-image: linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%);
-            color: white;
-            font-weight: 600;
         }
     }
 </style>

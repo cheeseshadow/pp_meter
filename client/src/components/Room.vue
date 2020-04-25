@@ -1,5 +1,7 @@
 <template>
-    <div :class="['room', inProgress ? 'room_in-progress' : '']">
+    <div :class="room">
+        <div v-if="inProgress" class="room__in-progress"></div>
+
         <div class="room__header header">
             {{room.name}}
         </div>
@@ -145,6 +147,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: relative;
 
         &__btn {
             &:not(:last-child) {
@@ -198,8 +201,31 @@
             margin-bottom: 20px;
         }
 
-        &_in-progress {
-            /*background: pink;*/
+        &__in-progress {
+            @keyframes pulse {
+                from {
+                    opacity: .5;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 8px solid;
+            border-image-source: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
+            border-image-slice: 1;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            animation-name: pulse;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-timing-function: ease;
         }
     }
 
