@@ -5,11 +5,11 @@
         </div>
 
         <div class="room__table">
-            <UserList class="room__list" :users="players"/>
+            <UserList class="room__list" :users="players" reverse="true"/>
 
             <Queue class="room__queue" :users="queue"></Queue>
 
-            <UserList class="room__list" :users="rightPlayers"/>
+            <UserList class="room__list" :users="players"/>
         </div>
 
         <div class="room__control">
@@ -132,6 +132,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
 
         &__header {
             display: flex;
@@ -143,20 +144,22 @@
         &__table {
             display: flex;
             flex: 1;
+            // cumulative padding of header and footer
+            height: calc(100vh - 214px);
         }
 
         &__queue {
             display: flex;
             flex-direction: column;
-            flex: 1;
+            flex: 2;
             overflow: hidden;
             background: #ddd;
+            margin: 0 24px;
         }
 
         &__list {
-            flex: 2;
-            // cumulative padding of header and footer
-            height: calc(100vh - 214px);
+            flex: 3;
+            overflow: hidden;
         }
 
         &__control {

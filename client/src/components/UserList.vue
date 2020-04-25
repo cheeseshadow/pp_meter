@@ -1,5 +1,5 @@
 <template>
-    <div class="user-list">
+    <div :class="['user-list', reverse ? 'user-list_reverse' : '']">
         <div class="user-list__item" v-for="user in users" :key="'room_' + user.id">
             <div>
                 {{user.name}}
@@ -19,6 +19,9 @@
     export default class Room extends Vue {
         @Prop()
         users!: NameDto[]
+
+        @Prop()
+        reverse!: boolean
     }
 </script>
 
@@ -26,9 +29,14 @@
     .user-list {
         display: flex;
         flex-direction: column;
-        flex-wrap: wrap-reverse;
+        flex-wrap: wrap;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        align-content: flex-start;
+
+        &_reverse {
+            flex-wrap: wrap-reverse;
+        }
 
         &__item {
             display: flex;
@@ -39,7 +47,7 @@
             padding: 32px 32px;
             margin: 8px;
             width: 160px;
-            height: 100px;
+            height: 84px;
             box-sizing: border-box;
             /*min-width: 120px;*/
             /*max-width: 240px;*/
