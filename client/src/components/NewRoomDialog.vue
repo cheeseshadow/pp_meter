@@ -2,11 +2,11 @@
     <form @submit.prevent="accept" class="modal block block_column block_high">
         <div class="modal__header">Create a room</div>
         <div class="modal__body block block_column">
-            <input class="main__input"
-                   v-model.trim="roomName"
-                   type="text"
-                   placeholder="Username"
-                   required/>
+            <ZlpInput v-model.trim="roomName"
+                      type="text"
+                      placeholder="Room name"
+                      required/>
+
         </div>
         <div class="modal__footer">
             <button class="btn" type="submit">Create</button>
@@ -16,8 +16,9 @@
 
 <script lang="ts">
     import {Component, Vue} from "vue-property-decorator";
+    import ZlpInput from "@/components/ZlpInput.vue";
 
-    @Component({components: {}})
+    @Component({components: {ZlpInput}})
     export default class Dialog extends Vue {
         roomName: string = ''
 
@@ -33,11 +34,14 @@
     .modal {
 
         &__header {
-            padding: 20px;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            padding-bottom: 40px;
         }
 
         &__body {
-            padding: 20px;
+            padding-bottom: 20px;
         }
 
         &__footer {
