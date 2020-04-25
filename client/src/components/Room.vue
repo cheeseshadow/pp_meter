@@ -1,6 +1,9 @@
 <template>
     <div class="room">
-        <div v-if="inProgress" class="room__in-progress"></div>
+        <div v-if="alertMode" class="room__state room__state_in-progress"></div>
+        <div v-if="players.length === 0" class="room__state room__state_empty">
+            You are the first one here
+        </div>
 
         <div class="room__header header">
             {{room.name}}
@@ -16,10 +19,12 @@
 
         <div class="room__control">
             <div v-if="!isHost" class="block block_wide">
-                <button class="btn room__btn" v-if="!isQueued" @click="sendSignal(roomAction.Queue)"
+                <div class="room__answering" v-if="isAnswering">It's your turn!</div>
+                <button class="btn room__btn room__btn_main" v-if="!isQueued" @click="sendSignal(roomAction.Queue)"
                         :disabled="!inProgress">Answer
                 </button>
-                <button class="btn" v-if="isQueued && !isAnswering" @click="sendSignal(roomAction.Unqueue)">
+                <button class="btn btn_white room__btn_main" v-if="isQueued && !isAnswering"
+                        @click="sendSignal(roomAction.Unqueue)">
                     Withdraw
                 </button>
             </div>
@@ -131,6 +136,10 @@
             return this.state === RoomState.InProgress;
         }
 
+        get alertMode(): boolean {
+            return this.inProgress && !this.isQueued && !this.isHost
+        }
+
         get thereIsAnAnswer(): boolean {
             return this.inProgress && this.queue.length > 0
         }
@@ -153,7 +162,13 @@
         position: relative;
 
         &__btn {
-            margin-right: 12px;
+            &:not(:last-child) {
+                margin-right: 12px;
+            }
+
+            &_main {
+                width: 32%;
+            }
 
             &_left {
                 margin-left: 20px;
@@ -202,31 +217,55 @@
             margin-bottom: 20px;
         }
 
-        &__in-progress {
-            @keyframes pulse {
-                from {
-                    opacity: .5;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
+        &__answering {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 48px;
+            font-weight: 700;
+            font-size: 32px;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-            pointer-events: none;
+        &__state {
             position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             top: 0;
             left: 0;
-            border: 8px solid;
-            border-image-source: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
-            border-image-slice: 1;
             width: 100%;
             height: 100%;
-            box-sizing: border-box;
-            animation-name: pulse;
-            animation-duration: 1s;
-            animation-iteration-count: infinite;
-            animation-direction: alternate;
-            animation-timing-function: ease;
+            pointer-events: none;
+
+            &_empty {
+                font-size: 20px;
+                color: #aaa;
+            }
+
+            &_in-progress {
+                @keyframes pulse {
+                    from {
+                        opacity: .5;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+
+                border: 8px solid;
+                border-image-source: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
+                border-image-slice: 1;
+                box-sizing: border-box;
+                animation-name: pulse;
+                animation-duration: 1s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate;
+                animation-timing-function: ease;
+            }
         }
     }
 
