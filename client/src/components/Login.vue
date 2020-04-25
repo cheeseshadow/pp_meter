@@ -113,6 +113,10 @@
             &:focus {
                 outline: none;
             }
+
+            &::placeholder {
+                color: #aaa;
+            }
         }
 
         &__btn {
