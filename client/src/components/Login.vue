@@ -11,7 +11,7 @@
                 <span class="main__letter main__letter_a2">a</span>
             </div>
 
-            <div class="block">
+            <div class="block main__hueta">
                 <input class="main__input"
                        v-model.trim="username"
                        type="text"
@@ -45,48 +45,61 @@
         height: 100%;
 
         &__zaloopa {
-            padding: 20px;
-            font-size: 120px;
+            padding-bottom: 32px;
+            font-size: 100px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
         }
 
         &__letter {
             &_z {
-                color: #ffffff;
+                color: #4285F4;
             }
 
             &_a1 {
-                color: darkmagenta;
+                color: #DB4437;
             }
 
             &_l {
-                color: chocolate;
+                color: #F4B400;
             }
 
             &_o1 {
-                color: burlywood;
+                color: #4285F4;
             }
 
             &_o2 {
-                color: blueviolet;
+                color: #0F9D58;
             }
 
             &_p {
-                color: crimson;
+                color: #DB4437;
             }
 
             &_a2 {
-                color: hotpink;
+                color: #4285F4;
             }
+        }
+
+        &__hueta {
+            box-sizing: border-box;
+            padding: 0 24px;
+            height: 72px;
+            border: 1px solid #f7f7f7;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
         }
 
         &__input {
             box-sizing: border-box;
-            margin: 0;
-            padding-left: 24px;
+            margin: 0 20px 0 0;
             height: 48px;
-            width: 300px;
+            width: 360px;
+            border: none;
+        }
+
+        &__input:focus {
+            outline: none;
         }
 
         &__btn {
@@ -94,6 +107,10 @@
             height: 48px;
             padding: 0 32px;
             border: none;
+            border-radius: 8px;
+            background-image: linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%);
+            color: white;
+            font-weight: 600;
         }
     }
 </style>
