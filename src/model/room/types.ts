@@ -39,5 +39,6 @@ export enum RoomAction {
     StartRound = 'StartRound',
     EndRound = 'EndRound',
     AcceptAnswer = 'AcceptAnswer',
+    AcceptHalf = 'AcceptHalf',
     RejectAnswer = 'RejectAnswer'
 }
