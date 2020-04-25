@@ -1,5 +1,6 @@
-import { HasId, HasName } from "./model/interfaces"
-import { NameDto } from "./model/types"
+import {HasId, HasName} from "./model/interfaces"
+import {NameDto} from "./model/types"
+import {Signal} from "./model/signal/types";
 
 export const generateUUID = () => {
     let result = ''
@@ -8,6 +9,18 @@ export const generateUUID = () => {
         result += characters.charAt(Math.floor(Math.random() * characters.length))
     }
     return result
+}
+
+export const parseSignal = (json: string) => {
+    let result = null;
+    try {
+        result = JSON.parse(json) as Signal
+        return result
+    } catch (err) {
+        console.error(err)
+    }
+
+    return null
 }
 
 export const removeFromArray = (array: any[], element: any, callback?: Function | undefined) => {

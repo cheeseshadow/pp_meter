@@ -94,8 +94,6 @@
         }
 
         mounted() {
-            console.log("soochara!", this.user);
-
             const base = process.env.VUE_APP_URL;
             const url = `ws://${base}/lobby/${this.username}`;
             this.ws = new WebSocket(url);

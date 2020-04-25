@@ -1,7 +1,7 @@
 import {HasId, HasName} from "../interfaces"
 import {Signal} from "../signal/types"
 import {Update} from "../update/types"
-import {removeFromArray} from "../../utils"
+import {parseSignal, removeFromArray} from "../../utils"
 import Room from "../room/room"
 
 export default class User implements HasId, HasName {
@@ -57,7 +57,14 @@ export default class User implements HasId, HasName {
         })
 
         this.ws.on('message', (message: any) => {
-            const signal: Signal = JSON.parse(message) as Signal
+            const signal: Signal | null = parseSignal(message)
+            if (!signal) {
+                this.ws.send('Wrong signal format')
+                this.ws.close()
+                console.error('Received wrong signal format')
+                return
+            }
+
             if (!signal.type) {
                 throw new Error('wrong message format!')
             }
