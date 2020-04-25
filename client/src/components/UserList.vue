@@ -1,7 +1,8 @@
 <template>
     <div :class="['user-list', reverse ? 'user-list_reverse' : '']">
-        <div class="user-list__item" v-for="user in users" :key="'room_' + user.id">
-            <div>
+        <div :class="['user-list__item', (activeUserId && activeUserId === user.id) ? 'user-list__item_active' : '']"
+             v-for="user in users" :key="'room_' + user.id">
+            <div class="user-list__item_name">
                 {{user.name}}
             </div>
             <div>
@@ -18,10 +19,13 @@
     @Component({})
     export default class Room extends Vue {
         @Prop()
+        reverse!: boolean
+
+        @Prop()
         users!: NameDto[]
 
         @Prop()
-        reverse!: boolean
+        activeUserId: string | undefined
     }
 </script>
 
@@ -43,18 +47,21 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #4285F4;
+            background-image: linear-gradient(-225deg, #F2F0FA 0%, #DCD8EB 100%);
             padding: 32px 32px;
             margin: 8px;
             width: 160px;
             height: 84px;
             box-sizing: border-box;
-            /*min-width: 120px;*/
-            /*max-width: 240px;*/
-            /*margin: 0 32px;*/
+            border-radius: 12px;
 
-            &:not(:last-child) {
-                /*margin-bottom: 60px;*/
+            &_name {
+                font-weight: 700;
+            }
+
+            &_active {
+                background-image: linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%);
+                color: #fff;
             }
         }
     }

@@ -1,28 +1,39 @@
+@mixin hover($startColor, $endColor) {
+  $darken-amount: 5;
+  background-image: linear-gradient(-225deg, $startColor 0%, $endColor 100%);
+
+  &:hover {
+    background-image: linear-gradient(-225deg, darken($startColor, $darken-amount) 0%, darken($endColor, $darken-amount) 100%);
+  }
+}
+
 .btn {
   border: none;
   border-radius: 8px;
-  background-image: linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%);
   padding: 8px 32px;
   line-height: 32px;
   min-width: 140px;
   color: white;
   font-weight: 600;
   white-space: nowrap;
+  transition: all ease .5s;
+
+  @include hover(#AC32E4, #4801FF);
 
   &_green {
-    background-image: linear-gradient(-225deg, #46E580 0%, #00A31B 100%);
+    @include hover(#46E580, #00A31B);
   }
 
   &_yellow {
-    background-image: linear-gradient(-225deg, #E5E51C 0%, #EB7E01 100%);
+    @include hover(#E5E51C, #EB7E01);
   }
 
   &_red {
-    background-image: linear-gradient(-225deg, #FF6A00 0%, #E01401 100%);
+    @include hover(#FF6A00, #E01401);
   }
 
-  &_grey {
-    background-image: linear-gradient(-225deg, #F2F0FA 0%, #DCD8EB 100%);
+  &_white {
+    @include hover(#fff, #fff);
     color: #333;
   }
 }
@@ -46,5 +57,9 @@
 
   &_high {
     height: 100%;
+  }
+
+  &_wide {
+    width: 100%;
   }
 }

@@ -5,11 +5,11 @@
         </div>
 
         <div class="room__table">
-            <UserList class="room__list" :users="players" reverse="true"/>
+            <UserList class="room__list" :users="leftPlayers" :activeUserId="activePlayerId" reverse="true"/>
 
             <Queue class="room__queue" :users="queue"></Queue>
 
-            <UserList class="room__list" :users="players"/>
+            <UserList class="room__list" :activeUserId="activePlayerId" :users="rightPlayers"/>
         </div>
 
         <div class="room__control">
@@ -18,17 +18,25 @@
                 <button v-if="isQueued && !isAnswering" @click="sendSignal(roomAction.Unqueue)">withdraw!</button>
             </div>
 
-            <div v-if="isHost" class="block">
-                <button class="btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">Start round</button>
-                <button class="btn" v-if="inProgress" @click="sendSignal(roomAction.EndRound)">End round</button>
-                <button class="btn btn_green" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.AcceptAnswer)">
+            <div v-if="isHost" class="block block_wide">
+                <button class="btn room__btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">Start
+                    round
+                </button>
+                <button :class="['btn', 'btn_white', activePlayerId ? 'room__btn_left' : '']" v-if="inProgress"
+                        @click="sendSignal(roomAction.EndRound)">End round
+                </button>
+                <button class="btn btn_green room__btn" v-if="thereIsAnAnswer"
+                        @click="sendSignal(roomAction.AcceptAnswer)">
                     Accept
                 </button>
-                <button class="btn btn_yellow" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.AcceptHalf)">Half
+                <button class="btn btn_yellow room__btn" v-if="thereIsAnAnswer"
+                        @click="sendSignal(roomAction.AcceptHalf)">Half
                 </button>
-                <button class="btn btn_red" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.RejectAnswer)">Reject
+                <button class="btn btn_red room__btn" v-if="thereIsAnAnswer"
+                        @click="sendSignal(roomAction.RejectAnswer)">Reject
                 </button>
-                <button class="btn btn_grey" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.Unqueue)">Skip
+                <button class="btn btn_white room__btn_right" v-if="thereIsAnAnswer"
+                        @click="sendSignal(roomAction.Unqueue)">Skip
                 </button>
             </div>
         </div>
@@ -98,6 +106,10 @@
             return this.users.filter(user => user.id !== this.host.id)
         }
 
+        get activePlayerId(): (string | undefined) {
+            return this.queue.length > 0 ? this.queue[0].id : undefined
+        }
+
         get isHost(): boolean {
             return this.host.id === this.user.id;
         }
@@ -134,6 +146,22 @@
         flex-direction: column;
         overflow: hidden;
 
+        &__btn {
+            &:not(:last-child) {
+                margin-right: 12px;
+            }
+
+            &_left {
+                margin-left: 20px;
+                margin-right: auto;
+            }
+
+            &_right {
+                margin-right: 20px;
+                margin-left: auto;
+            }
+        }
+
         &__header {
             display: flex;
             justify-content: center;
@@ -153,7 +181,6 @@
             flex-direction: column;
             flex: 2;
             overflow: hidden;
-            /*background: #f2f0fa;*/
             margin: 0 24px;
         }
 

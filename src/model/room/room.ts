@@ -49,7 +49,14 @@ export default class Room implements HasName, HasId {
             return
         }
 
-        const user = this.getUser(signal.userId)
+        let user
+        try {
+            user = this.getUser(signal.userId)
+        } catch (error) {
+            console.error('Something is wrong with the user who tried to answer', error)
+            return
+        }
+
         const entry = this.getEntry(signal.userId)
 
         if (!entry) {

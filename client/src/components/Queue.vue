@@ -16,11 +16,6 @@
     import {Component, Prop, Vue} from "vue-property-decorator";
     import {QueueEntryDto} from "../../../src/model/room/types";
 
-    type Dto = {
-        name: string,
-        time: number
-    }
-
     @Component({})
     export default class Queue extends Vue {
         @Prop()
@@ -41,6 +36,10 @@
         }
 
         formatTime(time: number) {
+            if (time === 0) {
+                return 0
+            }
+
             if (time < 1000) {
                 return `${time}ms`
             }
@@ -63,11 +62,9 @@
             align-items: center;
             padding: 12px 24px;
             margin-bottom: 12px;
-            background-color: #f2f0fa;
+            background-image: linear-gradient(-225deg, #485563 0%, #29323c 100%);
+            color: #fff;
             border-radius: 12px;
-            /*min-width: 120px;*/
-            /*max-width: 240px;*/
-            /*margin: 0 32px;*/
 
             &_name {
                 flex: 1;

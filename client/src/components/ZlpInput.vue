@@ -1,6 +1,7 @@
 <template>
     <div :class="['zlp-input-container', inputIsFocused ? 'zlp-input-container_focused' : '']">
         <input class="zlp-input" type="text"
+               ref="input"
                @input="updateValue($event.target.value)"
                @focusin="inputIsFocused = true"
                @focusout="inputIsFocused = false"
@@ -28,6 +29,11 @@
 
         updateValue(value: string) {
             this.$emit('input', value)
+        }
+
+        mounted() {
+            // @ts-ignore
+            this.$refs.input.focus()
         }
 
     }
