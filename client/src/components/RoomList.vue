@@ -4,7 +4,7 @@
 
         <div class="room-list">
             <div class="room-list__item room-list__item_empty" v-if="rooms.length === 0">List is empty</div>
-            <div class="room-list__item"
+            <div class="room-list__item room-list__item_selectable"
                  v-for="room in rooms"
                  :key="room.id"
                  @click="joinRoom(room)">
@@ -97,14 +97,18 @@
             justify-content: center;
             line-height: 32px;
             padding: 8px 24px;
-            cursor: pointer;
+
 
             &_empty {
                 color: #aaa;
             }
 
-            &:hover {
-                background: #f2f0fa;
+            &_selectable {
+                cursor: pointer;
+
+                &:hover {
+                    background: #f2f0fa;
+                }
             }
         }
     }
