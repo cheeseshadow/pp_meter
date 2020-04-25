@@ -54,7 +54,7 @@
     .room-queue {
         display: flex;
         flex-wrap: wrap;
-        justify-content: flex-start;
+        justify-content: center;
         padding-top: 8px;
 
         &__item {
@@ -62,6 +62,9 @@
             justify-content: center;
             align-items: center;
             padding: 12px 24px;
+            margin-bottom: 12px;
+            background-color: #f2f0fa;
+            border-radius: 12px;
             /*min-width: 120px;*/
             /*max-width: 240px;*/
             /*margin: 0 32px;*/

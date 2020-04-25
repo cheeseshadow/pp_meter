@@ -153,7 +153,7 @@
             flex-direction: column;
             flex: 2;
             overflow: hidden;
-            background: #f9f9f9;
+            /*background: #f2f0fa;*/
             margin: 0 24px;
         }
 
