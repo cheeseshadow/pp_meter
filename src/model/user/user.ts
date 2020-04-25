@@ -59,14 +59,14 @@ export default class User implements HasId, HasName {
         this.ws.on('message', (message: any) => {
             const signal: Signal | null = parseSignal(message)
             if (!signal) {
-                this.ws.send('Wrong signal format')
+                this.ws.send('Could not parse the signal')
                 this.ws.close()
-                console.error('Received wrong signal format')
+                console.error('Could not parse the signal')
                 return
             }
 
             if (!signal.type) {
-                throw new Error('wrong message format!')
+                throw new Error('wrong signal format!')
             }
 
             this.applyCallbacks(this.onMessageCallbacks, signal)
