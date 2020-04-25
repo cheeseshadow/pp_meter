@@ -37,9 +37,6 @@
         @Prop()
         rooms!: NameDto[];
 
-        @Prop()
-        currentRoom: string = "";
-
         roomName: string = "";
 
         createRoom() {

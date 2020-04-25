@@ -1,25 +1,36 @@
 <template>
     <div :class="['room', inProgress ? 'room_in-progress' : '']">
-        <div class="control">
+        <div class="room__header header">
+            {{room.name}}
+        </div>
+
+        <div class="room__table">
+            <UserList class="room__list" :users="players"/>
+
+            <Queue class="room__queue" :users="queue"></Queue>
+
+            <UserList class="room__list" :users="rightPlayers"/>
+        </div>
+
+        <div class="room__control">
             <div v-if="!isHost" class="block">
                 <button @click="sendSignal(roomAction.Queue)" :disabled="!inProgress">ultra button</button>
                 <button v-if="isQueued && !isAnswering" @click="sendSignal(roomAction.Unqueue)">withdraw!</button>
             </div>
 
             <div v-if="isHost" class="block">
-                <button v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">Start round</button>
-                <button v-if="inProgress" @click="sendSignal(roomAction.EndRound)">End round</button>
-                <button v-if="thereIsAnAnswer" @click="sendSignal(roomAction.AcceptAnswer)">Accept answer</button>
-                <button v-if="thereIsAnAnswer" @click="sendSignal(roomAction.RejectAnswer)">Reject answer</button>
+                <button class="btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">Start round</button>
+                <button class="btn" v-if="inProgress" @click="sendSignal(roomAction.EndRound)">End round</button>
+                <button class="btn btn_green" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.AcceptAnswer)">
+                    Accept
+                </button>
+                <button class="btn btn_yellow" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.AcceptHalf)">Half
+                </button>
+                <button class="btn btn_red" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.RejectAnswer)">Reject
+                </button>
+                <button class="btn btn_grey" v-if="thereIsAnAnswer" @click="sendSignal(roomAction.Unqueue)">Skip
+                </button>
             </div>
-        </div>
-
-        <div class="list">
-            <div v-for="user in queue" :key="'queue_' + user.id">{{user.name}} ({{new Date(user.timestamp)}})</div>
-        </div>
-
-        <div class="list">
-            <div v-for="user in players" :key="'room_' + user.id">{{user.name}} ({{user.score}})</div>
         </div>
     </div>
 </template>
@@ -31,11 +42,15 @@
     import {Signal, SignalType} from "../../../src/model/signal/types";
     import {send} from "@/utils";
     import {UserDto} from "../../../src/model/user/types";
+    import UserList from "@/components/UserList.vue";
+    import Queue from "@/components/Queue.vue";
 
-    @Component({})
+    @Component({
+        components: {Queue, UserList}
+    })
     export default class Room extends Vue {
         @Prop()
-        id!: string;
+        room!: NameDto;
 
         @Prop()
         user!: NameDto;
@@ -61,16 +76,22 @@
             const signal: Signal = {
                 type: SignalType.Room,
                 data: {
-                    id: this.id,
+                    id: this.room.id,
                     userId: this.user.id,
                     timestamp: Date.now(),
                     action: action
                 }
             }
 
-            console.log('start!', signal)
-
             send(this.ws, signal)
+        }
+
+        get leftPlayers(): UserDto[] {
+            return this.players.filter((user, index) => index % 2 === 0)
+        }
+
+        get rightPlayers(): UserDto[] {
+            return this.players.filter((user, index) => index % 2 === 1)
         }
 
         get players(): UserDto[] {
@@ -107,17 +128,49 @@
 
 <style lang="scss" scoped>
     .room {
-        display: flex;
-
-        &_in-progress {
-            background: pink;
-        }
-    }
-
-    .list {
-        flex: 1;
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
+
+        &__header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 32px;
+        }
+
+        &__table {
+            display: flex;
+            flex: 1;
+        }
+
+        &__queue {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        &__list {
+            flex: 2;
+            // cumulative padding of header and footer
+            height: calc(100vh - 214px);
+        }
+
+        &__control {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 0 0 42px;
+            margin-top: 32px;
+            margin-bottom: 20px;
+        }
+
+        &_in-progress {
+            /*background: pink;*/
+        }
     }
 
     .control {

@@ -19,7 +19,7 @@ export type QueueEntryDto = {
 }
 
 export type RoomUpdate = {
-    id: string,
+    room: NameDto,
     state: RoomState
     host: NameDto,
     users: UserDto[],

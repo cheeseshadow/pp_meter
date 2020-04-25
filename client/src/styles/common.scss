@@ -8,6 +8,23 @@
   color: white;
   font-weight: 600;
   white-space: nowrap;
+
+  &_green {
+    background-image: linear-gradient(-225deg, #46E580 0%, #00A31B 100%);
+  }
+
+  &_yellow {
+    background-image: linear-gradient(-225deg, #E5E51C 0%, #EB7E01 100%);
+  }
+
+  &_red {
+    background-image: linear-gradient(-225deg, #FF6A00 0%, #E01401 100%);
+  }
+
+  &_grey {
+    background-image: linear-gradient(-225deg, #F2F0FA 0%, #DCD8EB 100%);
+    color: #333;
+  }
 }
 
 .header {

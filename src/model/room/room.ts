@@ -107,7 +107,7 @@ export default class Room implements HasName, HasId {
 
     public update() {
         const update: RoomUpdate = {
-            id: this.id,
+            room: {id: this.id, name: this.name},
             state: this.state,
             host: convertToNameDto(this.host),
             users: this.users.map(user => {

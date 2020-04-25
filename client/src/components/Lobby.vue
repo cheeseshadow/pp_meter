@@ -12,7 +12,7 @@
 
         <Room
                 v-if="currentRoom"
-                :id="currentRoom"
+                :room="currentRoom"
                 :user="user"
                 :host="roomHost"
                 :users="roomUsers"
@@ -47,7 +47,7 @@
         roomName: string = "";
 
         rooms: NameDto[] = [];
-        currentRoom: string = "";
+        currentRoom: NameDto | null = null;
 
         roomHost!: NameDto;
         roomUsers: UserDto[] = [];
@@ -70,17 +70,17 @@
                     const data = update.data as ContextUpdate;
                     this.rooms = data.rooms;
 
-                    if (this.currentRoom && !this.rooms.find(room => room.id === this.currentRoom)) {
-                        this.currentRoom = ''
+                    if (this.currentRoom && !this.rooms.find(room => room.id === this.currentRoom!.id)) {
+                        this.currentRoom = null
                     }
 
                 } else if (update.type === UpdateType.Room) {
                     const data = update.data as RoomUpdate;
 
                     if (this.currentRoom && !data.users.find(user => user.id === this.user!.id)) {
-                        this.currentRoom = ''
+                        this.currentRoom = null
                     } else if (!this.currentRoom && data.users.find(user => user.id === this.user!.id)) {
-                        this.currentRoom = data.id;
+                        this.currentRoom = data.room
                     }
 
                     if (this.currentRoom) {
