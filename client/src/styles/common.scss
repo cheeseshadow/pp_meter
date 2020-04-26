@@ -1,5 +1,49 @@
-.btn {
+@mixin hover($startColor, $endColor) {
+  $darken-amount: 5;
+  background-image: linear-gradient(-225deg, $startColor 0%, $endColor 100%);
 
+  &:hover {
+    background-image: linear-gradient(-225deg, darken($startColor, $darken-amount) 0%, darken($endColor, $darken-amount) 100%);
+  }
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 32px;
+  line-height: 32px;
+  min-width: 140px;
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all ease .5s;
+
+  @include hover(#AC32E4, #4801FF);
+
+  &_green {
+    @include hover(#46E580, #00A31B);
+  }
+
+  &_yellow {
+    @include hover(#E5E51C, #EB7E01);
+  }
+
+  &_red {
+    @include hover(#FF6A00, #E01401);
+  }
+
+  &_white {
+    @include hover(#fff, #fff);
+    color: #333;
+  }
+}
+
+.header {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 42px;
+  margin-bottom: 32px;
 }
 
 .block {
@@ -13,5 +57,19 @@
 
   &_high {
     height: 100%;
+  }
+
+  &_wide {
+    width: 100%;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
   }
 }

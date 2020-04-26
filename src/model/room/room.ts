@@ -49,7 +49,14 @@ export default class Room implements HasName, HasId {
             return
         }
 
-        const user = this.getUser(signal.userId)
+        let user
+        try {
+            user = this.getUser(signal.userId)
+        } catch (error) {
+            console.error('Something is wrong with the user who tried to answer', error)
+            return
+        }
+
         const entry = this.getEntry(signal.userId)
 
         if (!entry) {
@@ -107,7 +114,7 @@ export default class Room implements HasName, HasId {
 
     public update() {
         const update: RoomUpdate = {
-            id: this.id,
+            room: {id: this.id, name: this.name},
             state: this.state,
             host: convertToNameDto(this.host),
             users: this.users.map(user => {
@@ -158,24 +165,32 @@ export default class Room implements HasName, HasId {
                     break
 
                 case RoomAction.AcceptAnswer:
-                    if (this.state !== RoomState.InProgress || this.queue.length === 0) {
-                        console.warn('attempt to accept an answer when there is none')
-                        return
-                    }
-                    this.queue[0].user.score += 1
-                    this.queue.length = 0
-                    this.setState(RoomState.Idle, data.userId)
-                    break
-
+                case RoomAction.AcceptHalf:
                 case RoomAction.RejectAnswer:
-                    if (this.state !== RoomState.InProgress || this.queue.length === 0) {
-                        console.warn('attempt to accept an answer when there is none')
-                        return
-                    }
-                    this.queue[0].user.score -= 1
-                    this.removeFromQueue()
+                    this.handleAnswer(data.action, data.userId)
                     break
             }
+        }
+    }
+
+    private handleAnswer(action: RoomAction, userId: string) {
+        if (![RoomAction.AcceptAnswer, RoomAction.AcceptHalf, RoomAction.RejectAnswer].includes(action)) {
+            console.warn('Am I a joke to you?')
+            return
+        }
+
+        if (this.state !== RoomState.InProgress || this.queue.length === 0) {
+            console.warn('attempt to accept an answer when there is none')
+            return
+        }
+
+        this.queue[0].user.score += action === RoomAction.AcceptAnswer ? 2 : action === RoomAction.AcceptHalf ? 1 : -2
+
+        if (action === RoomAction.AcceptAnswer) {
+            this.queue.length = 0
+            this.setState(RoomState.Idle, userId)
+        } else {
+            this.removeFromQueue()
         }
     }
 

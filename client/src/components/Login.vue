@@ -1,6 +1,6 @@
 <template>
     <form @submit.prevent="login()" class="main">
-        <div class="block block_column">
+        <div class="block block_column main__anchor">
             <div class="block main__zaloopa">
                 <span class="main__letter main__letter_z">z</span>
                 <span class="main__letter main__letter_a1">a</span>
@@ -11,14 +11,16 @@
                 <span class="main__letter main__letter_a2">a</span>
             </div>
 
-            <div class="block">
+            <div :class="['block', 'main__input-container', inputIsFocused ? 'main__input-container_focused' : '']">
                 <input class="main__input"
+                       @focusin="inputIsFocused = true"
+                       @focusout="inputIsFocused = false"
                        v-model.trim="username"
                        type="text"
                        placeholder="Username"
                        required/>
 
-                <button class="main__btn" type="submit">Continue</button>
+                <button class="btn" type="submit">Continue</button>
             </div>
         </div>
     </form>
@@ -30,6 +32,7 @@
     @Component({})
     export default class Login extends Vue {
         username: string = "";
+        inputIsFocused: boolean = false;
 
         login() {
             this.$router.replace({name: "lobby", params: {username: this.username}});
@@ -44,56 +47,77 @@
         align-items: center;
         height: 100%;
 
+        &__anchor {
+            position: relative;
+        }
+
         &__zaloopa {
-            padding: 20px;
-            font-size: 120px;
+            line-height: normal;
+            position: absolute;
+            bottom: calc(100% + 32px);
+            font-size: 100px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
         }
 
         &__letter {
             &_z {
-                color: cornflowerblue;
+                color: #4285F4;
             }
 
             &_a1 {
-                color: darkmagenta;
+                color: #DB4437;
             }
 
             &_l {
-                color: chocolate;
+                color: #F4B400;
             }
 
             &_o1 {
-                color: burlywood;
+                color: #4285F4;
             }
 
             &_o2 {
-                color: blueviolet;
+                color: #0F9D58;
             }
 
             &_p {
-                color: crimson;
+                color: #DB4437;
             }
 
             &_a2 {
-                color: hotpink;
+                color: #4285F4;
+            }
+        }
+
+        &__input-container {
+            box-sizing: border-box;
+            padding: 0 24px;
+            height: 72px;
+            border: 1px solid #f7f7f7;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            transition: all ease .5s;
+
+            &_focused {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
             }
         }
 
         &__input {
             box-sizing: border-box;
-            margin: 0;
-            padding-left: 24px;
+            margin: 0 20px 0 0;
             height: 48px;
-            width: 300px;
-        }
-
-        &__btn {
-            box-sizing: border-box;
-            height: 48px;
-            padding: 0 32px;
+            width: 360px;
             border: none;
+
+            &:focus {
+                outline: none;
+            }
+
+            &::placeholder {
+                color: #aaa;
+            }
         }
     }
 </style>
