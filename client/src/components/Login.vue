@@ -17,10 +17,10 @@
                        @focusout="inputIsFocused = false"
                        v-model.trim="username"
                        type="text"
-                       placeholder="Username"
+                       :placeholder="$t('placeholder')"
                        required/>
 
-                <button class="btn" type="submit">Continue</button>
+                <button class="btn" type="submit">{{$t('login')}}</button>
             </div>
         </div>
     </form>
@@ -121,3 +121,8 @@
         }
     }
 </style>
+
+<i18n locale="en" lang="yml">
+    placeholder: Username
+    login: Come in
+</i18n>

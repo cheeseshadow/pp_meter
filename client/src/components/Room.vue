@@ -2,7 +2,7 @@
     <div class="room">
         <Alert v-if="alertMode"/>
         <div v-if="players.length === 0" class="room__state room__state_empty">
-            You are the first one here
+            {{$t('empty')}}
         </div>
 
         <div class="room__header header">
@@ -21,40 +21,45 @@
             <div v-if="!isHost" class="block block_wide">
                 <div class="room__message" v-if="isAnswering">
                     <div class="room__message_hack">
-                        It's your turn!
+                        {{$t('answering')}}
                     </div>
                 </div>
                 <div class="room__message" v-if="!inProgress">
-                    <div class="room__message_hack">Waiting for the new round</div>
+                    <div class="room__message_hack">{{$t('idle')}}</div>
                 </div>
                 <button class="btn room__btn room__btn_main" v-if="inProgress && !isQueued"
                         @click="sendSignal(roomAction.Queue)"
-                        :disabled="!inProgress">Answer
+                        :disabled="!inProgress">{{$t('answer')}}
                 </button>
                 <button class="btn btn_white room__btn_main" v-if="isQueued && !isAnswering"
                         @click="sendSignal(roomAction.Unqueue)">
-                    Withdraw
+                    {{$t('withdraw')}}
                 </button>
             </div>
 
             <div v-if="isHost" class="block block_wide">
-                <button class="btn room__btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">Start
-                    round
+                <button class="btn room__btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">
+                    {{$t('start')}}
                 </button>
                 <button :class="['btn', 'btn_white', activePlayerId ? 'room__btn_left' : '']" v-if="inProgress"
-                        @click="sendSignal(roomAction.EndRound)">End round
+                        @click="sendSignal(roomAction.EndRound)">
+                    {{$t('end')}}
                 </button>
                 <button class="btn btn_green room__btn" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.AcceptAnswer)">Accept
+                        @click="sendSignal(roomAction.AcceptAnswer)">
+                    {{$t('accept')}}
                 </button>
                 <button class="btn btn_yellow room__btn" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.AcceptHalf)">Half
+                        @click="sendSignal(roomAction.AcceptHalf)">
+                    {{$t('acceptHalf')}}
                 </button>
                 <button class="btn btn_red" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.RejectAnswer)">Reject
+                        @click="sendSignal(roomAction.RejectAnswer)">
+                    {{$t('reject')}}
                 </button>
                 <button class="btn btn_white room__btn_right" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.Unqueue)">Skip
+                        @click="sendSignal(roomAction.Unqueue)">
+                    {{$t('skip')}}
                 </button>
             </div>
         </div>
@@ -290,3 +295,17 @@
         margin: 4px;
     }
 </style>
+
+<i18n locale="en" lang="yml">
+    empty: You are the only one here
+    answering: You are in the spotlight!
+    idle: Waiting for the new round
+    answer: I know!
+    withdraw: Withdraw
+    start: Start a round
+    end: End the round
+    accept: Accept
+    acceptHalf: Half
+    reject: Reject
+    skip: Skip
+</i18n>

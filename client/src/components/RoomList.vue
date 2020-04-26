@@ -1,9 +1,9 @@
 <template>
     <div class="block block_column block_high">
-        <div class="header">Room list</div>
+        <div class="header">{{$t('header')}}</div>
 
         <div class="room-list">
-            <div class="room-list__item room-list__item_empty" v-if="rooms.length === 0">List is empty</div>
+            <div class="room-list__item room-list__item_empty" v-if="rooms.length === 0">{{$t('empty')}}</div>
             <div class="room-list__item room-list__item_selectable"
                  v-for="room in rooms"
                  :key="room.id"
@@ -13,7 +13,7 @@
         </div>
 
         <div class="control">
-            <button class="btn" @click="createRoom()">Create room</button>
+            <button class="btn" @click="createRoom()">{{$t('create')}}</button>
         </div>
     </div>
 </template>
@@ -109,3 +109,9 @@
         }
     }
 </style>
+
+<i18n locale="en" lang="yml">
+    header: Room list
+    empty: Your room will be the first
+    create: Create a room
+</i18n>
