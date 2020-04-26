@@ -3,28 +3,22 @@ import Router from 'koa-router'
 import websockify from 'koa-websocket'
 import serve from 'koa-static'
 import ws from './ws'
+import fs from 'fs'
+import path from "path";
 
 const app = websockify(new Koa())
 const router = new Router()
 
-// router init
-router.all('/', async (ctx, next) => {
-    ctx.redirect('/index.html')
+// router init for vue router history mode
+router.get('*', async (ctx, next) => {
+    const html = fs.readFileSync(path.resolve('./client/dist/index.html'));
+    ctx.type = 'html';
+    ctx.body = html;
     await next()
 })
 
 // middleware
 app.use(serve('./client/dist'))
-
-// do not allow other routes
-app.use(async (ctx, next) => {
-    if (!['/login', '/'].includes(ctx.path)) {
-        ctx.status = 401
-        ctx.redirect('/')
-    } else {
-        await next()
-    }
-})
 
 // router
 // @ts-ignore
