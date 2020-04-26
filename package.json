@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node build/app.js",
+    "launch": "node build/app.js",
     "build": "tsc",
-    "serve": "ts-node-dev --respawn --transpileOnly ./src/app.ts"
+    "serve": "ts-node-dev --respawn --transpileOnly ./src/app.ts",
+    "start": "forever start build/app.js",
+    "shutdown": "forever stop build/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +17,7 @@
     "@types/koa-router": "^7.4.0",
     "@types/koa-static": "^4.0.1",
     "@types/koa-websocket": "^5.0.4",
+    "forever": "^2.0.0",
     "koa": "^2.11.0",
     "koa-router": "^8.0.8",
     "koa-static": "^5.0.0",
