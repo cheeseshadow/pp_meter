@@ -1,6 +1,6 @@
 <template>
     <div class="room">
-        <div v-if="alertMode" class="room__state room__state_in-progress"></div>
+        <Alert v-if="alertMode"/>
         <div v-if="players.length === 0" class="room__state room__state_empty">
             You are the first one here
         </div>
@@ -19,8 +19,16 @@
 
         <div class="room__control">
             <div v-if="!isHost" class="block block_wide">
-                <div class="room__answering" v-if="isAnswering">It's your turn!</div>
-                <button class="btn room__btn room__btn_main" v-if="!isQueued" @click="sendSignal(roomAction.Queue)"
+                <div class="room__message" v-if="isAnswering">
+                    <div class="room__message_hack">
+                        It's your turn!
+                    </div>
+                </div>
+                <div class="room__message" v-if="!inProgress">
+                    <div class="room__message_hack">Waiting for the new round</div>
+                </div>
+                <button class="btn room__btn room__btn_main" v-if="inProgress && !isQueued"
+                        @click="sendSignal(roomAction.Queue)"
                         :disabled="!inProgress">Answer
                 </button>
                 <button class="btn btn_white room__btn_main" v-if="isQueued && !isAnswering"
@@ -62,9 +70,10 @@
     import {UserDto} from "../../../src/model/user/types";
     import UserList from "@/components/UserList.vue";
     import Queue from "@/components/Queue.vue";
+    import Alert from "@/components/Alert.vue";
 
     @Component({
-        components: {Queue, UserList}
+        components: {Alert, Queue, UserList}
     })
     export default class Room extends Vue {
         @Prop()
@@ -90,7 +99,14 @@
 
         roomAction = RoomAction;
 
+        lastSignal: number = 0;
+
         sendSignal(action: RoomAction) {
+            if (Date.now() - this.lastSignal < 100) {
+                console.log('Too many signals!')
+                return
+            }
+
             const signal: Signal = {
                 type: SignalType.Room,
                 data: {
@@ -102,6 +118,7 @@
             }
 
             send(this.ws, signal)
+            this.lastSignal = Date.now()
         }
 
         get leftPlayers(): UserDto[] {
@@ -145,9 +162,20 @@
         }
 
         mounted() {
+            if (!this.isHost) {
+                window.addEventListener("keypress", this.keyboardHandler);
+            }
         }
 
         beforeDestroy() {
+            window.removeEventListener("keypress", this.keyboardHandler);
+        }
+
+        keyboardHandler(event: any) {
+            console.log(event)
+            if (event.code === 'Space' && !this.isQueued) {
+                this.sendSignal(RoomAction.Queue)
+            }
         }
     }
 </script>
@@ -217,7 +245,7 @@
             margin-bottom: 20px;
         }
 
-        &__answering {
+        &__message {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -225,9 +253,15 @@
             font-weight: 700;
             font-size: 32px;
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+
+            &_hack {
+                line-height: 48px;
+                background: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
+                background-size: 200%;
+                animation: gradient linear alternate 1s infinite;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
         }
 
         &__state {
@@ -244,27 +278,6 @@
             &_empty {
                 font-size: 20px;
                 color: #aaa;
-            }
-
-            &_in-progress {
-                @keyframes pulse {
-                    from {
-                        opacity: .5;
-                    }
-                    to {
-                        opacity: 1;
-                    }
-                }
-
-                border: 8px solid;
-                border-image-source: linear-gradient(-225deg, #AC32E4 0%, #4801FF 100%);
-                border-image-slice: 1;
-                box-sizing: border-box;
-                animation-name: pulse;
-                animation-duration: 1s;
-                animation-iteration-count: infinite;
-                animation-direction: alternate;
-                animation-timing-function: ease;
             }
         }
     }
