@@ -29,9 +29,6 @@
     @Component({components: {Room}})
     export default class Lobby extends Vue {
         @Prop()
-        ws!: WebSocket;
-
-        @Prop()
         user!: NameDto;
 
         @Prop()

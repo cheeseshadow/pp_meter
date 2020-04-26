@@ -5,7 +5,6 @@
                 :user="user"
                 :rooms="rooms"
                 :currentRoom="currentRoom"
-                :ws="ws"
 
                 @context-signal="onContextSignal"
         />
