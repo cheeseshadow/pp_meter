@@ -87,7 +87,6 @@
         height: 40vh;
         width: 400px;
         margin-bottom: 32px;
-        box-sizing: border-box;
 
         &__item {
             display: flex;

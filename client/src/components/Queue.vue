@@ -65,11 +65,15 @@
             background-image: linear-gradient(-225deg, #485563 0%, #29323c 100%);
             color: #fff;
             border-radius: 12px;
+            width: 100%;
+            flex: 0 0 52px;
 
             &_name {
                 flex: 1;
                 overflow: hidden;
                 margin-right: 4px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             &_time {

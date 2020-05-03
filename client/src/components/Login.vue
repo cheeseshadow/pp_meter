@@ -91,7 +91,6 @@
         }
 
         &__input-container {
-            box-sizing: border-box;
             padding: 0 24px;
             height: 72px;
             border: 1px solid #f7f7f7;
@@ -105,7 +104,6 @@
         }
 
         &__input {
-            box-sizing: border-box;
             margin: 0 20px 0 0;
             height: 48px;
             width: 360px;

@@ -52,11 +52,15 @@
             margin: 8px;
             width: 160px;
             height: 84px;
-            box-sizing: border-box;
             border-radius: 12px;
 
             &_name {
                 font-weight: 700;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                max-width: 136px;
+                flex: 0 0 26px;
             }
 
             &_active {

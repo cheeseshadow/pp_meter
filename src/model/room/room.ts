@@ -60,7 +60,7 @@ export default class Room implements HasName, HasId {
         const entry = this.getEntry(signal.userId)
 
         if (!entry) {
-            this.queue.push({user, timestamp: signal.timestamp})
+            this.queue.push({user, timestamp: Date.now()})
             this.update()
         }
     }
