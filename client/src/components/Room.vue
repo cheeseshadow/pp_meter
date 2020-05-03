@@ -28,39 +28,85 @@
                     <div class="room__message_hack">{{$t('idle')}}</div>
                 </div>
                 <button class="btn room__btn room__btn_main" v-if="inProgress && !isQueued"
-                        @click="sendSignal(roomAction.Queue)"
+                        @click="sendSignalOnClick(roomAction.Queue)"
                         :disabled="!inProgress">{{$t('answer')}}
                 </button>
                 <button class="btn btn_white room__btn_main" v-if="isQueued && !isAnswering"
-                        @click="sendSignal(roomAction.Unqueue)">
+                        @click="sendSignalOnClick(roomAction.Unqueue)">
                     {{$t('withdraw')}}
                 </button>
             </div>
 
             <div v-if="isHost" class="block block_wide">
-                <button class="btn room__btn" v-if="!inProgress" @click="sendSignal(roomAction.StartRound)">
-                    {{$t('start')}}
-                </button>
-                <button :class="['btn', 'btn_white', activePlayerId ? 'room__btn_left' : '']" v-if="inProgress"
-                        @click="sendSignal(roomAction.EndRound)">
-                    {{$t('end')}}
-                </button>
-                <button class="btn btn_green room__btn" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.AcceptAnswer)">
-                    {{$t('accept')}}
-                </button>
-                <button class="btn btn_yellow room__btn" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.AcceptHalf)">
-                    {{$t('acceptHalf')}}
-                </button>
-                <button class="btn btn_red" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.RejectAnswer)">
-                    {{$t('reject')}}
-                </button>
-                <button class="btn btn_white room__btn_right" v-if="thereIsAnAnswer"
-                        @click="sendSignal(roomAction.Unqueue)">
-                    {{$t('skip')}}
-                </button>
+                <div class="room__btn" v-if="!inProgress">
+                    <button class="btn" @click="sendSignalOnClick(roomAction.StartRound)">
+                        {{$t('start')}}
+                    </button>
+                </div>
+
+                <div :class="[activePlayerId ? 'room__btn_left' : '']" v-if="inProgress">
+                    <button class="btn btn_white"
+                            @click="sendSignalOnClick(roomAction.EndRound)">
+                        {{$t('end')}}
+                    </button>
+                </div>
+
+                <div class="room__btn" v-if="thereIsAnAnswer">
+                    <button v-show="!acceptMenu" class="btn btn_green"
+                            @click="openAcceptMenu()">
+                        {{$t('accept')}}
+                    </button>
+
+                    <div v-show="acceptMenu">
+                        <button class="btn btn_white room__btn_small"
+                                @click="acceptMenu = false">
+                            x
+                        </button>
+
+                        <button class="btn btn_green room__btn_half"
+                                @click="sendSignalOnClick(roomAction.AcceptAnswer)">
+                            {{$t('whole')}}
+                        </button>
+
+                        <button class="btn btn_yellow room__btn_half"
+                                @click="sendSignalOnClick(roomAction.AcceptHalf)">
+                            {{$t('half')}}
+                        </button>
+                    </div>
+
+                </div>
+
+                <div v-if="thereIsAnAnswer">
+                    <button class="btn btn_red" v-show="!rejectMenu"
+                            @click="openRejectMenu()">
+                        {{$t('reject')}}
+                    </button>
+
+                    <div v-show="rejectMenu">
+                        <button class="btn btn_white room__btn_small"
+                                @click="rejectMenu = false">
+                            x
+                        </button>
+
+                        <button class="btn btn_yellow room__btn_half"
+                                @click="sendSignalOnClick(roomAction.RejectHalf)">
+                            {{$t('half')}}
+                        </button>
+
+                        <button class="btn btn_red room__btn_half"
+                                @click="sendSignalOnClick(roomAction.RejectAnswer)">
+                            {{$t('whole')}}
+                        </button>
+
+                    </div>
+                </div>
+
+                <div class="room__btn_right" v-if="thereIsAnAnswer">
+                    <button class="btn btn_white"
+                            @click="sendSignal(roomAction.Unqueue)">
+                        {{$t('skip')}}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -106,6 +152,14 @@
 
         lastSignal: number = 0;
 
+        acceptMenu: boolean = false;
+        rejectMenu: boolean = false;
+
+        sendSignalOnClick(action: RoomAction) {
+            this.acceptMenu = this.rejectMenu = false
+            this.sendSignal(action)
+        }
+
         sendSignal(action: RoomAction) {
             if (Date.now() - this.lastSignal < 100) {
                 console.log('Too many signals!')
@@ -124,6 +178,16 @@
 
             send(this.ws, signal)
             this.lastSignal = Date.now()
+        }
+
+        openRejectMenu() {
+            this.rejectMenu = true
+            this.acceptMenu = false
+        }
+
+        openAcceptMenu() {
+            this.rejectMenu = false
+            this.acceptMenu = true
         }
 
         get leftPlayers(): UserDto[] {
@@ -211,6 +275,16 @@
             &_right {
                 margin-right: 20px;
                 margin-left: auto;
+            }
+
+            &_half {
+                min-width: 70px;
+            }
+
+            &_small {
+                min-width: 0;
+                width: 40px;
+                padding: 8px 12px;
             }
         }
 
@@ -305,7 +379,8 @@
     start: Start a round
     end: End the round
     accept: Accept
-    acceptHalf: Half
     reject: Reject
+    half: Half
+    whole: Whole
     skip: Skip
 </i18n>

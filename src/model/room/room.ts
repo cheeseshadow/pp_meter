@@ -167,6 +167,7 @@ export default class Room implements HasName, HasId {
                 case RoomAction.AcceptAnswer:
                 case RoomAction.AcceptHalf:
                 case RoomAction.RejectAnswer:
+                case RoomAction.RejectHalf:
                     this.handleAnswer(data.action, data.userId)
                     break
             }
@@ -174,7 +175,7 @@ export default class Room implements HasName, HasId {
     }
 
     private handleAnswer(action: RoomAction, userId: string) {
-        if (![RoomAction.AcceptAnswer, RoomAction.AcceptHalf, RoomAction.RejectAnswer].includes(action)) {
+        if (![RoomAction.AcceptAnswer, RoomAction.AcceptHalf, RoomAction.RejectAnswer, RoomAction.RejectHalf].includes(action)) {
             console.warn('Am I a joke to you?')
             return
         }
@@ -184,7 +185,8 @@ export default class Room implements HasName, HasId {
             return
         }
 
-        this.queue[0].user.score += action === RoomAction.AcceptAnswer ? 2 : action === RoomAction.AcceptHalf ? 1 : -2
+
+        this.queue[0].user.score += Room.getActionScore(action)
 
         if (action === RoomAction.AcceptAnswer) {
             this.queue.length = 0
@@ -192,6 +194,13 @@ export default class Room implements HasName, HasId {
         } else {
             this.removeFromQueue()
         }
+    }
+
+    private static getActionScore(action: RoomAction): number {
+        return action === RoomAction.AcceptAnswer ? 2 :
+            action === RoomAction.AcceptHalf ? 1 :
+                action === RoomAction.RejectHalf ? -1 :
+                    action === RoomAction.RejectAnswer ? -2 : 0;
     }
 
     private getEntry(userId: string): QueueEntry | undefined {
